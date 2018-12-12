@@ -2,8 +2,8 @@
     <div>
         <h1 class="text-center">
             L3 Pilot Data Visualisation
-        </h1>
-        <h2>Login</h2>
+        </h1><br><br>
+        <h3>Login</h3>
         <form @submit.prevent="handleSubmit">
             <div class="form-group">
                 <label for="username">Username</label>
