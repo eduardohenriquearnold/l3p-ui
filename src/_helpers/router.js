@@ -1,15 +1,21 @@
 import Vue from 'vue';
 import Router from 'vue-router';
 
-import HomePage from '../home/HomePage'
 import LoginPage from '../login/LoginPage'
+import Dash from '../home/Dash'
+
+import Welcome from '../home/Welcome'
+import Query from '../home/Query'
+import Delete from '../home/Delete'
 
 Vue.use(Router);
 
 export const router = new Router({
   mode: 'history',
   routes: [
-    { path: '/', component: HomePage },
+    { path: '/', component: Dash, children: [{path:'', component: Welcome}] },
+    { path: '/query', component: Dash, children: [{path:'', component: Query}] },
+    { path: '/delete', component: Dash, children: [{path:'', component: Delete}] },
     { path: '/login', component: LoginPage },
 
     // otherwise redirect to home

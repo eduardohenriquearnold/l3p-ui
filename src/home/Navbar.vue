@@ -6,9 +6,10 @@
     </button>
     <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
       <div class="navbar-nav">
-        <a class="nav-item nav-link active" href="#">Home <span class="sr-only">(current)</span></a>
-        <a class="nav-item nav-link">Queries</a>
-        <a class="nav-item nav-link">Insert</a>
+        <li class="nav-item"><router-link class="nav-link" to="/">Home</router-link></li>
+        <li class="nav-item"><router-link class="nav-link" to="/query">Queries</router-link></li>
+        <li class="nav-item"><router-link class="nav-link" to="/delete">Delete</router-link></li>
+        <li class="nav-item"><router-link class="nav-link" to="/login">Logout</router-link></li>
       </div>
     </div>
   </nav>
