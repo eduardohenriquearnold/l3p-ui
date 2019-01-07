@@ -2,7 +2,7 @@
 <div>
   <form>
 
-      <div class="form-group col-md-6">
+      <div class="form-group col-md-4">
       <label>Query on</label>
       <select v-model="query" class="custom-select">
         <option value="measurements">Measurements</option>

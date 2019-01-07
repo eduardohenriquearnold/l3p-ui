@@ -6,7 +6,10 @@ axios.interceptors.response.use(null, function(error) {
   if (error.response.status === 401) {
     //Dispatch logout
     store.dispatch('authentication/logout')
-    return "Unauthorized access";
+    //return "Unauthorized access";
   }
   return Promise.reject(error);
 });
+
+
+axios.defaults.headers.common['Authorization'] = localStorage.getItem('user-token')
