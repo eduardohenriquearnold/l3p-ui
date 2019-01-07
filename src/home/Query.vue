@@ -62,7 +62,7 @@
       <div class="form-group col-md-3" >
         <label  class="col-form-label">Typology</label>
           <select v-model="driverTypology" class="custom-select">
-            <option v-for="t in driverTipologies">{{ t }}</option>
+            <option v-for="t in driverTypologies">{{ t }}</option>
           </select>
       </div>
 
@@ -108,29 +108,23 @@ export default {
   name:'Query',
   data: function ()
   {
-    var features = featuresService.getFeatures()
-    var tags = tagsService.getTags()
-    var driverTipologies = driversService.getTypologies()
-
     return {
       query: '',
       tripID: '',
       driverID: '',
-      features: features,
+      features: [],
       feature: '',
       baseFeature1: '',
       baseFeature2: '',
-      tags: tags,
+      tags: [],
       selectedTags: [],
-      driverTipologies: driverTipologies,
+      driverTypologies: [],
       driverTypology: '',
       driverMileageMin: '',
       driverMileageMax: '',
       driverYearsMin: '',
       driverYearsMax: '',
       ownership: false
-
-
     }
   },
   computed: {
@@ -158,7 +152,12 @@ export default {
       return this.query === 'trips'
     }
 
-
+  },
+  created: function(){
+    //Load dynamic data from services
+    tagsService.getTags().then(tags => {this.tags = tags})
+    driversService.getTypologies().then(typologies => {this.driverTypologies = typologies})
+    featuresService.getFeatures().then(features => {this.features = features})
   }
 
 

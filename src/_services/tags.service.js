@@ -1,3 +1,4 @@
+import config from 'config';
 import axios from 'axios';
 
 export const tagsService = {
@@ -6,5 +7,12 @@ export const tagsService = {
 
 function getTags()
 {
-    return ['ADF_ON', 'ADF_OFF', 'AUTOMATIC']
+  return axios.get(`${config.apiUrl}/tags`)
+  .then(res => {
+     var tags = res.data.docs.map(it => it._id)
+     return tags
+   })
+  .catch(err => {
+    console.log(err)
+  })
 }

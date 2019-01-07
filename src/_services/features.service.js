@@ -1,3 +1,4 @@
+import config from 'config';
 import axios from 'axios';
 
 export const featuresService = {
@@ -6,5 +7,12 @@ export const featuresService = {
 
 function getFeatures()
 {
-    return [{id:'Acceleration', order:0}, {id:'Speed', order:0}, {id:'Stat', order:1}, {id:'Corr', order:2}]
+  return axios.get(`${config.apiUrl}/features`)
+  .then(res => {
+     var features = res.data.docs.map(f => {return {id:f._id, order:f.order}})
+     return features
+   })
+  .catch(err => {
+    console.log(err)
+  })
 }

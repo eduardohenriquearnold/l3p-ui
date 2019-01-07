@@ -16,6 +16,8 @@ function login(username, password) {
             if (token) {
                 // store user details and jwt token in local storage to keep user logged in between page refreshes
                 localStorage.setItem('user-token', token);
+                //Set axios Authorization header
+                axios.defaults.headers.common['Authorization'] = token
             }
 
             return token;
