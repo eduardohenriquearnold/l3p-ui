@@ -1,6 +1,6 @@
 <template>
 <div>
-  <form>
+  <form @submit.prevent="handleSubmit">
 
       <div class="form-group col-md-4">
       <label>Query on</label>
@@ -23,22 +23,22 @@
       </div>
     </div>
 
-    <div class="form-row col-md-12">
-        <div class="form-group col-md-4" v-if="measurements">
+    <div class="form-row col-md-12" v-if="measurements || trips">
+        <div class="form-group col-md-4" >
             <label>Feature</label>
             <select v-model="feature" class="custom-select">
               <option v-for="f in features">{{ f.id }}</option>
             </select>
         </div>
 
-        <div class="form-group col-md-4" v-if="measurements && featureOrder>0">
+        <div class="form-group col-md-4" v-if="featureOrder>0">
           <label>Base Feature 1</label>
           <select v-model="baseFeature1" class="custom-select">
             <option v-for="f in firstOrderFeatures">{{ f.id }}</option>
           </select>
         </div>
 
-        <div class="form-group col-md-4" v-if="measurements && featureOrder>1">
+        <div class="form-group col-md-4" v-if="featureOrder>1">
           <label>Base Feature 2</label>
           <select v-model="baseFeature2" class="custom-select">
             <option v-for="f in firstOrderFeatures">{{ f.id }}</option>
@@ -62,6 +62,7 @@
       <div class="form-group col-md-3" >
         <label  class="col-form-label">Typology</label>
           <select v-model="driverTypology" class="custom-select">
+            <option ></option>
             <option v-for="t in driverTypologies">{{ t }}</option>
           </select>
       </div>
@@ -86,7 +87,7 @@
 
     </div>
 
-    <div class="form-group col-md-6" v-if="drivers || trips">
+    <div class="form-group col-md-6" v-if="false">
       <div class="form-check">
       <input class="form-check-input" type="checkbox" id="ownership" v-model="ownership">
       <label class="form-check-label" for="ownership">Ownership</label>
@@ -97,12 +98,14 @@
       <button type="submit" class="btn btn-primary">Submit</button>
     </div>
 
+    {{ result }}
+
   </form>
 </div>
 </template>
 
 <script>
-import { featuresService, tagsService, driversService } from '../_services';
+import { featuresService, tagsService, driversService, measurementsService } from '../_services';
 
 export default {
   name:'Query',
@@ -124,7 +127,8 @@ export default {
       driverMileageMax: '',
       driverYearsMin: '',
       driverYearsMax: '',
-      ownership: false
+      ownership: false,
+      result: ""
     }
   },
   computed: {
@@ -158,6 +162,15 @@ export default {
     tagsService.getTags().then(tags => {this.tags = tags})
     driversService.getTypologies().then(typologies => {this.driverTypologies = typologies})
     featuresService.getFeatures().then(features => {this.features = features})
+  },
+  methods: {
+    handleSubmit: function(){
+      if (this.drivers)
+        driversService.getDriver({id:this.driverID, typology:this.driverTypology, mileageMin:this.driverMileageMin, mileageMax:this.driverMileageMax, yearsMin:this.driverYearsMin, yearsMax:this.driverYearsMax}).then(res => {this.result = res})
+
+      if (this.measurements)
+        measurementsService.getMeasurements({tripID:this.tripID, driverID:this.driverID, feature:this.feature, baseFeature1:this.baseFeature1, baseFeature2:this.baseFeature2, tags:this.selectedTags, driverTypology:this.driverTypology, driverMileageMin:this.driverMileageMin, driverMileageMax:this.driverMileageMax, driverYearsMin:this.driverYearsMin, driverYearsMax:this.driverYearsMax}).then(res => {this.result = res})
+    }
   }
 
 
