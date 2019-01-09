@@ -19,7 +19,7 @@ function getTypologies()
 
 function getDriver({id='', typology='', mileageMin='', mileageMax='', yearsMin='', yearsMax=''})
 {
-  let query = []
+  let query = [{"tags":"driver"}]
 
   if (id != '')
     query.push({"_id":id})
@@ -39,11 +39,7 @@ function getDriver({id='', typology='', mileageMin='', mileageMax='', yearsMin='
 
   return axios.get(`${config.apiUrl}/things?filter={"$and":${query}}`)
   .then(res => {
-    let drivers = res.data.docs.map(thing => {
-      return {'id':thing._id, 'type':thing.metadata.type, 'mileage':thing.metadata.mileage, 'years':thing.metadata.years}
-    })
-
-    return drivers
+        return res.data.docs
   })
   .catch(err => {
     console.log(err)

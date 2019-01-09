@@ -165,11 +165,21 @@ export default {
   },
   methods: {
     handleSubmit: function(){
+      this.result = []
+
       if (this.drivers)
         driversService.getDriver({id:this.driverID, typology:this.driverTypology, mileageMin:this.driverMileageMin, mileageMax:this.driverMileageMax, yearsMin:this.driverYearsMin, yearsMax:this.driverYearsMax}).then(res => {this.result = res})
 
       if (this.measurements)
         measurementsService.getMeasurements({tripID:this.tripID, driverID:this.driverID, feature:this.feature, baseFeature1:this.baseFeature1, baseFeature2:this.baseFeature2, tags:this.selectedTags, driverTypology:this.driverTypology, driverMileageMin:this.driverMileageMin, driverMileageMax:this.driverMileageMax, driverYearsMin:this.driverYearsMin, driverYearsMax:this.driverYearsMax}).then(res => {this.result = res})
+
+      if (this.trips)
+        measurementsService.getMeasurements({tripID:this.tripID, driverID:this.driverID, feature:this.feature, baseFeature1:this.baseFeature1, baseFeature2:this.baseFeature2})
+        .then(res => {
+          let ids = res.map(m => m._id)
+          let uniqueTrips = res.filter((v, i, a) => ids.indexOf(v._id) === i);
+          this.result = uniqueTrips
+        })
     }
   }
 

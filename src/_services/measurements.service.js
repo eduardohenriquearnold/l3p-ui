@@ -36,9 +36,13 @@ function getMeasurements({tripID='', driverID='', feature='', baseFeature1='', b
   if (driverYearsMax != '')
     query.push({"thing_docs.metadata.years" : {"$lte" : driverYearsMax}})
 
-  query = JSON.stringify(query)
-  let req = `${config.apiUrl}/measurements?aggregator=[{"$lookup": { "from": "things", "localField": "relatedThings", "foreignField": "_id", "as": "thing_docs"}}, { "$match":{ "$and": ${query}}} ]`
-  console.log(req)
+  if (query.length>0)  {
+    query = JSON.stringify(query)
+    var req = `${config.apiUrl}/measurements?aggregator=[{"$lookup": { "from": "things", "localField": "relatedThings", "foreignField": "_id", "as": "thing_docs"}}, { "$match":{ "$and": ${query}}} ]`
+  }
+  else {
+    var req = `${config.apiUrl}/measurements?aggregator=[{"$lookup": { "from": "things", "localField": "relatedThings", "foreignField": "_id", "as": "thing_docs"}} ]`
+  }
 
   return axios.get(req)
   .then(res => {
