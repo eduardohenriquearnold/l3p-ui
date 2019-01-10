@@ -26,7 +26,7 @@
     <div class="form-row col-md-12" v-if="measurements || trips">
         <div class="form-group col-md-4" >
             <label>Feature</label>
-            <select v-model="feature" class="custom-select">
+            <select v-model="feature" class="custom-select" @change="changeFeature()">
               <option v-for="f in features">{{ f.id }}</option>
             </select>
         </div>
@@ -98,7 +98,49 @@
       <button type="submit" class="btn btn-primary">Submit</button>
     </div>
 
-    {{ result }}
+    <!-- Results Section -->
+    <div v-if="result.length>0">
+
+      <!-- Drivers table -->
+      <table class="table" v-if="drivers">
+          <thead class="thead-dark">
+            <tr>
+              <th scope="col">ID</th>
+              <th scope="col">Type</th>
+              <th scope="col">Mileage</th>
+              <th scope="col">Years</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="driver in result">
+              <th scope="row">{{ driver._id }}</th>
+              <td>{{ driver.metadata.type }}</td>
+              <td>{{ driver.metadata.mileage }}</td>
+              <td>{{ driver.metadata.years }}</td>
+            </tr>
+          </tbody>
+      </table>
+
+      <!-- Trips table -->
+      <table class="table" v-if="trips">
+          <thead class="thead-dark">
+            <tr>
+              <th scope="col">ID</th>
+              <th scope="col">Driver ID</th>
+              <th scope="col">Start Date</th>
+              <th scope="col">End Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="trip in result">
+              <th scope="row">{{ trip.thing }}</th>
+              <td>{{ trip.thing_docs[0]._id }}</td>
+              <td>{{ trip.startDate }}</td>
+              <td>{{ trip.endDate }}</td>
+            </tr>
+          </tbody>
+      </table>
+    </div>
 
   </form>
 </div>
@@ -128,7 +170,7 @@ export default {
       driverYearsMin: '',
       driverYearsMax: '',
       ownership: false,
-      result: ""
+      result: []
     }
   },
   computed: {
@@ -176,10 +218,15 @@ export default {
       if (this.trips)
         measurementsService.getMeasurements({tripID:this.tripID, driverID:this.driverID, feature:this.feature, baseFeature1:this.baseFeature1, baseFeature2:this.baseFeature2})
         .then(res => {
-          let ids = res.map(m => m._id)
-          let uniqueTrips = res.filter((v, i, a) => ids.indexOf(v._id) === i);
+          let ids = res.map(m => m.thing)
+          let uniqueTrips = res.filter((v, i, a) => ids.indexOf(v.thing) === i);
           this.result = uniqueTrips
         })
+    },
+    changeFeature: function()
+    {
+      this.baseFeature1 = ''
+      this.baseFeature2 = ''
     }
   }
 
