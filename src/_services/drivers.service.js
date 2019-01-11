@@ -9,7 +9,7 @@ function getTypologies()
 {
   return axios.get(`${config.apiUrl}/things?distinct="metadata.type"`)
   .then(res => {
-     var types = res.data
+     var types = res.data.data
      return types
    })
   .catch(err => {
@@ -35,12 +35,9 @@ function getDriver({id='', typology='', mileageMin='', mileageMax='', yearsMin='
     query.push({"metadata.years" : {"$lte" : yearsMax}})
 
   query = JSON.stringify(query)
-  console.log(query)
 
   return axios.get(`${config.apiUrl}/things?filter={"$and":${query}}`)
-  .then(res => {
-        return res.data.docs
-  })
+  .then(res => {return res.data.docs})
   .catch(err => {
     console.log(err)
   })
