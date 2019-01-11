@@ -135,8 +135,8 @@
             <tr v-for="trip in result">
               <th scope="row">{{ trip.thing }}</th>
               <td>{{ trip.thing_docs[0]._id }}</td>
-              <td>{{ trip.startDate }}</td>
-              <td>{{ trip.endDate }}</td>
+              <td>{{ trip.startDate | formatDate }}</td>
+              <td>{{ trip.endDate | formatDate }}</td>
             </tr>
           </tbody>
       </table>
@@ -147,6 +147,7 @@
 </template>
 
 <script>
+import moment from 'moment'
 import { featuresService, tagsService, driversService, measurementsService } from '../_services';
 
 export default {
@@ -176,14 +177,10 @@ export default {
   computed: {
     featureOrder : function(){
       var feat = this.features.filter(f => f.id === this.feature)
-      //return feat.length
       if (feat.length>0)
-      {
         return feat[0].order
-      }
-      else {
+      else
         return 0
-      }
     },
     firstOrderFeatures: function() {
       return this.features.filter(f => f.order === 0)
@@ -227,6 +224,12 @@ export default {
     {
       this.baseFeature1 = ''
       this.baseFeature2 = ''
+    }
+  },
+  filters: {
+    formatDate: function(value){
+        if (value)
+          return moment(String(value)).format('DD/MM/YYYY hh:mm')
     }
   }
 
