@@ -1,20 +1,22 @@
 {
-  "name": "vue-vuex-jwt-authentication-example",
+  "name": "L3Pilot Data Vis",
   "version": "1.0.0",
   "repository": {
     "type": "git",
-    "url": "https://github.com/cornflourblue/vue-vuex-jwt-authentication-example.git"
+    "url": "https://gitlab.ika.rwth-aachen.de/l3pilot-sp5/pc_db_ui"
   },
   "license": "MIT",
   "scripts": {
     "start": "webpack-dev-server --open"
   },
   "dependencies": {
+    "@statnett/vue-plotly": "^0.2.0",
+    "axios": "^0.18.0",
+    "moment": "^2.4",
+    "plotly.js": "^1.5",
     "vue": "^2.5.16",
     "vue-router": "^3.0.1",
-    "vuex": "^3.0.1",
-    "axios": "^0.18.0",
-    "moment": "^2.4"
+    "vuex": "^3.0.1"
   },
   "devDependencies": {
     "babel-core": "^6.26.0",

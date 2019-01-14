@@ -140,6 +140,33 @@
             </tr>
           </tbody>
       </table>
+
+      <!-- Measurmeents table -->
+      <table class="table" v-if="measurements">
+          <thead class="thead-dark">
+            <tr>
+              <th scope="col">ID</th>
+              <th scope="col">Driver ID</th>
+              <th scope="col">Start Date</th>
+              <th scope="col">End Date</th>
+              <th scope="col">Device</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="trip in result">
+              <th scope="row">{{ trip.thing }}</th>
+              <td>{{ trip.thing_docs[0]._id }}</td>
+              <td>{{ trip.startDate | formatDate }}</td>
+              <td>{{ trip.endDate | formatDate }}</td>
+              <td>{{ trip.device }}</td>
+            </tr>
+          </tbody>
+      </table>
+    </div>
+
+    <!-- Results plots -->
+    <div v-if="result.length>0 && measurements">
+      <PlotBox :result="result" v-if="feature==='Stat'" />
     </div>
 
   </form>
@@ -149,9 +176,11 @@
 <script>
 import moment from 'moment'
 import { featuresService, tagsService, driversService, measurementsService } from '../_services';
+import PlotBox from './Plot_box.vue'
 
 export default {
   name:'Query',
+  components: {PlotBox},
   data: function ()
   {
     return {
