@@ -150,6 +150,16 @@
               <th scope="col">Start Date</th>
               <th scope="col">End Date</th>
               <th scope="col">Device</th>
+              <!-- Stat specific Fields -->
+              <th scope="col" v-if="feature==='Stat'">Avg</th>
+              <th scope="col" v-if="feature==='Stat'">Stdev</th>
+              <th scope="col" v-if="feature==='Stat'">Min</th>
+              <th scope="col" v-if="feature==='Stat'">Max</th>
+              <th scope="col" v-if="feature==='Stat'">Med</th>
+              <th scope="col" v-if="feature==='Stat'">Samples</th>
+              <!-- Corr specific Fields -->
+              <th scope="col" v-if="feature==='Correlation'">Correlation Value</th>
+              <th scope="col" v-if="feature==='Correlation'">P-Value</th>
             </tr>
           </thead>
           <tbody>
@@ -159,6 +169,16 @@
               <td>{{ trip.startDate | formatDate }}</td>
               <td>{{ trip.endDate | formatDate }}</td>
               <td>{{ trip.device }}</td>
+              <!-- Stat specific Fields -->
+              <td v-if="feature==='Stat'">{{ trip.values[0].value[0] }}</td>
+              <td v-if="feature==='Stat'">{{ trip.values[0].value[1] }}</td>
+              <td v-if="feature==='Stat'">{{ trip.values[0].value[2] }}</td>
+              <td v-if="feature==='Stat'">{{ trip.values[0].value[3] }}</td>
+              <td v-if="feature==='Stat'">{{ trip.values[0].value[4] }}</td>
+              <td v-if="feature==='Stat'">{{ trip.values[0].value[5] }}</td>
+              <!-- Corr specific Fields -->
+              <td v-if="feature==='Correlation'">{{ trip.values[0].value[0] }}</td>
+              <td v-if="feature==='Correlation'">{{ trip.values[0].value[1] }}</td>
             </tr>
           </tbody>
       </table>
@@ -168,6 +188,8 @@
     <div v-if="result.length>0 && measurements">
       <PlotBox :result="result" v-if="feature==='Stat'" />
     </div>
+
+    {{result.length}} results retrieved
 
   </form>
 </div>
