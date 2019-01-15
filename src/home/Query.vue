@@ -222,6 +222,9 @@ export default {
     },
     trips: function(){
       return this.query === 'trips'
+    },
+    allInputData: function(){
+      return this.query,this.tripID,this.driverID,this.feature,this.baseFeature1,this.baseFeature2,this.selectedTags,this.driverTypology,this.driverMileageMin,this.driverMileageMax,this.driverYearsMin,this.driverYearsMax, Date.now()
     }
 
   },
@@ -259,6 +262,11 @@ export default {
     formatDate: function(value){
         if (value)
           return moment(String(value)).format('DD/MM/YYYY hh:mm')
+    }
+  },
+  watch: {
+    allInputData: function(){
+      this.result = []
     }
   }
 
