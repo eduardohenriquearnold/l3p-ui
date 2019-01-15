@@ -7,7 +7,7 @@ export const tagsService = {
 
 function getTags()
 {
-  return axios.get(`${config.apiUrl}/tags`)
+  return axios.get(`${config.apiUrl}/tags?filter={"tags.tagIDs":"measurementTag"}`)
   .then(res => {
      var tags = res.data.docs.map(it => it._id)
      return tags
