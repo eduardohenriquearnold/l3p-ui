@@ -187,6 +187,7 @@
     <!-- Results plots -->
     <div v-if="result.length>0 && measurements">
       <PlotBox :result="result" v-if="feature==='Stat'" />
+      <PlotHist :result="result" v-if="feature==='Histogram'" />
     </div>
 
     {{result.length}} results retrieved
@@ -199,10 +200,11 @@
 import moment from 'moment'
 import { featuresService, tagsService, driversService, measurementsService } from '../_services';
 import PlotBox from './Plot_box.vue'
+import PlotHist from './Plot_hist.vue'
 
 export default {
   name:'Query',
-  components: {PlotBox},
+  components: {PlotBox, PlotHist},
   data: function ()
   {
     return {
