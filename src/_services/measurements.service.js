@@ -1,6 +1,8 @@
 import config from 'config';
 import axios from 'axios';
 
+const JSON5 = require('json5')
+
 export const measurementsService = {
     getMeasurements
 };
@@ -46,7 +48,8 @@ function getMeasurements({tripID='', driverID='', feature='', baseFeature1='', b
 
   return axios.get(req)
   .then(res => {
-     var measurements = res.data.data
+    let data = JSON5.parse(res.data)
+     var measurements = data.data
      return measurements
    })
   .catch(err => {

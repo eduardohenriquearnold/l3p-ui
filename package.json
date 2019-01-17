@@ -12,6 +12,7 @@
   "dependencies": {
     "@statnett/vue-plotly": "^0.2.0",
     "axios": "^0.18.0",
+    "json5": "^2.1.0",
     "moment": "^2.4",
     "plotly.js": "^1.5",
     "vue": "^2.5.16",
