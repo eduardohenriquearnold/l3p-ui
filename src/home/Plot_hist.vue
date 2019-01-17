@@ -41,7 +41,7 @@ export default{
           data: traces,
           layout: {
             autosize: true,
-            boxmode: 'group',
+            barmode: 'relative',
             hovermode: 'closest',
             margin: {
               r: 80,
