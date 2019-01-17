@@ -35,11 +35,25 @@ function getDriver({id='', typology='', mileageMin='', mileageMax='', yearsMin='
     query.push({"metadata.years" : {"$lte" : yearsMax}})
 
   query = JSON.stringify(query)
+  query = `${config.apiUrl}/things?filter={"$and":${query}}`
 
-  return axios.get(`${config.apiUrl}/things?filter={"$and":${query}}`)
-  .then(res => {return res.data.docs})
-  .catch(err => {
-    console.log(err)
-  })
+  function makeReq(page=1, results=[])
+  {
+    return axios.get(query+`&page=${page}`)
+    .then(res => {
+      var curResults = res.data.docs
+      results.push(...curResults)
+
+      if (page >= res.data.pages)
+        return results
+
+      return makeReq(page+1, results)
+     })
+    .catch(err => {
+      console.log(err)
+    })
+  }
+
+  return makeReq()
 
 }

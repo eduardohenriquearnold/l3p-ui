@@ -46,13 +46,23 @@ function getMeasurements({tripID='', driverID='', feature='', baseFeature1='', b
       var req = `${config.apiUrl}/measurements?aggregator=[{"$lookup": { "from": "things", "localField": "relatedThings", "foreignField": "_id", "as": "thing_docs"}} ]`
     }
 
-  return axios.get(req)
-  .then(res => {
-    let data = JSON5.parse(res.data)
-     var measurements = data.data
-     return measurements
-   })
-  .catch(err => {
-    console.log(err)
-  })
+    function makeReq(page=1, measurements=[])
+    {
+      return axios.get(req+`&page=${page}`)
+      .then(res => {
+        let data = JSON5.parse(res.data)
+        var curMeasurements = data.data
+        measurements.push(...curMeasurements)
+
+        if (page >= data.totalPages)
+          return measurements
+
+        return makeReq(page+1, measurements)
+       })
+      .catch(err => {
+        console.log(err)
+      })
+    }
+
+    return makeReq()
 }
