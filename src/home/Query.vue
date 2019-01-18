@@ -27,21 +27,21 @@
         <div class="form-group col-md-4" >
             <label>Feature</label>
             <select v-model="feature" class="custom-select" @change="changeFeature()">
-              <option v-for="f in features">{{ f.id }}</option>
+              <option v-for="f in highOrderFeatures">{{ f.id }}</option>
             </select>
         </div>
 
         <div class="form-group col-md-4" v-if="featureOrder>0">
           <label>Base Feature 1</label>
           <select v-model="baseFeature1" class="custom-select">
-            <option v-for="f in firstOrderFeatures">{{ f.id }}</option>
+            <option v-for="f in constrainedFeatures">{{ f }}</option>
           </select>
         </div>
 
         <div class="form-group col-md-4" v-if="featureOrder>1">
           <label>Base Feature 2</label>
           <select v-model="baseFeature2" class="custom-select">
-            <option v-for="f in firstOrderFeatures">{{ f.id }}</option>
+            <option v-for="f in constrainedFeatures">{{ f }}</option>
           </select>
         </div>
     </div>
@@ -216,6 +216,7 @@ export default {
       tripID: '',
       driverID: '',
       features: [],
+      constrainedFeatures: [],
       feature: '',
       baseFeature1: '',
       baseFeature2: '',
@@ -241,6 +242,9 @@ export default {
     },
     firstOrderFeatures: function() {
       return this.features.filter(f => f.order === 0)
+    },
+    highOrderFeatures: function() {
+      return this.features.filter(f => f.order > 0)
     },
     measurements: function(){
       return this.query === 'measurements'
@@ -284,6 +288,7 @@ export default {
     {
       this.baseFeature1 = ''
       this.baseFeature2 = ''
+      featuresService.getConstrainedFeatures(this.feature).then(constrainedFeatures => {this.constrainedFeatures = constrainedFeatures})
     }
   },
   filters: {
