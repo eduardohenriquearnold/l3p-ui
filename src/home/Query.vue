@@ -105,7 +105,7 @@
       <table class="table" v-if="drivers">
           <thead class="thead-dark">
             <tr>
-              <th scope="col">ID</th>
+              <th scope="col">Driver ID</th>
               <th scope="col">Type</th>
               <th scope="col">Mileage</th>
               <th scope="col">Years</th>
@@ -125,7 +125,8 @@
       <table class="table" v-if="trips">
           <thead class="thead-dark">
             <tr>
-              <th scope="col">ID</th>
+              <th scope="col">Trip ID</th>
+              <th scope="col">Measurement ID</th>
               <th scope="col">Driver ID</th>
               <th scope="col">Start Date</th>
               <th scope="col">End Date</th>
@@ -134,6 +135,7 @@
           <tbody>
             <tr v-for="trip in result">
               <th scope="row">{{ trip.thing }}</th>
+              <td>{{ trip._id }}</td>
               <td>{{ trip.thing_docs[0]._id }}</td>
               <td>{{ trip.startDate | formatDate }}</td>
               <td>{{ trip.endDate | formatDate }}</td>
@@ -145,7 +147,8 @@
       <table class="table" v-if="measurements">
           <thead class="thead-dark">
             <tr>
-              <th scope="col">ID</th>
+              <th scope="col">Trip ID</th>
+              <th scope="col">Measurement ID</th>
               <th scope="col">Driver ID</th>
               <th scope="col">Start Date</th>
               <th scope="col">End Date</th>
@@ -165,6 +168,7 @@
           <tbody>
             <tr v-for="trip in result">
               <th scope="row">{{ trip.thing }}</th>
+              <td>{{ trip._id }}</td>
               <td>{{ trip.thing_docs[0]._id }}</td>
               <td>{{ trip.startDate | formatDate }}</td>
               <td>{{ trip.endDate | formatDate }}</td>
