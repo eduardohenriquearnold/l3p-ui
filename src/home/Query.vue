@@ -216,7 +216,7 @@ export default {
       tripID: '',
       driverID: '',
       features: [],
-      constrainedFeatures: [],
+      featureRules: [],
       feature: '',
       baseFeature1: '',
       baseFeature2: '',
@@ -246,6 +246,9 @@ export default {
     highOrderFeatures: function() {
       return this.features.filter(f => f.order > 0)
     },
+    constrainedFeatures: function() {
+      return this.featureRules.filter(r => r.element1 === this.feature).map(r => r.element2)
+    },
     measurements: function(){
       return this.query === 'measurements'
     },
@@ -265,6 +268,7 @@ export default {
     tagsService.getTags().then(tags => {this.tags = tags})
     driversService.getTypologies().then(typologies => {this.driverTypologies = typologies})
     featuresService.getFeatures().then(features => {this.features = features})
+    featuresService.getConstrainedFeatures(this.feature).then(rules => {this.featureRules = rules})
   },
   methods: {
     handleSubmit: function(){
@@ -288,7 +292,6 @@ export default {
     {
       this.baseFeature1 = ''
       this.baseFeature2 = ''
-      featuresService.getConstrainedFeatures(this.feature).then(constrainedFeatures => {this.constrainedFeatures = constrainedFeatures})
     }
   },
   filters: {

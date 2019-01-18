@@ -29,15 +29,15 @@ function getFeatures()
   return makeReq()
 }
 
-function getConstrainedFeatures(feature)
+function getConstrainedFeatures()
 {
-  var query = `${config.apiUrl}/constraints?filter=[{"element1":"${feature}"}]`
+  var query = `${config.apiUrl}/constraints?filter=[{"type1":"Feature", "type2":"Feature", "relationship":"dependency"}]`
 
   function makeReq(page=1, results=[])
   {
     return axios.get(query+`&page=${page}`)
     .then(res => {
-      var curResults = res.data.docs.map(f => {return f.element2})
+      var curResults = res.data.docs.map(f => {return {element1: f.element1, element2: f.element2}})
       results.push(...curResults)
 
       if (page >= res.data.pages)
