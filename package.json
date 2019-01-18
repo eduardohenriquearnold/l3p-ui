@@ -7,7 +7,7 @@
   },
   "license": "MIT",
   "scripts": {
-    "start": "webpack-dev-server --open --host 0.0.0.0"
+    "start": "webpack-dev-server --open"
   },
   "dependencies": {
     "@statnett/vue-plotly": "^0.2.0",
