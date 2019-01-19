@@ -163,6 +163,8 @@
               <!-- Corr specific Fields -->
               <th scope="col" v-if="feature==='Correlation'">Correlation Value</th>
               <th scope="col" v-if="feature==='Correlation'">P-Value</th>
+              <!-- PI specific Fields -->
+              <th scope="col" v-if="feature==='Single value PI'">PI</th>              
             </tr>
           </thead>
           <tbody>
@@ -183,6 +185,8 @@
               <!-- Corr specific Fields -->
               <td v-if="feature==='Correlation'">{{ trip.values[0].value[0] }}</td>
               <td v-if="feature==='Correlation'">{{ trip.values[0].value[1] }}</td>
+              <!-- PI specific Fields -->
+              <td v-if="feature==='Single value PI'">{{ trip.values[0].value[0] }}</td>
             </tr>
           </tbody>
       </table>
