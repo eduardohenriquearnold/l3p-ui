@@ -1,0 +1,27 @@
+version: "3.3"
+
+#Needs rebuilding everytime a new package is added 
+
+services: 
+  l3pilotUI:
+    build: 
+      context: ..
+      dockerfile: docker/Dockerfile.dev
+      args:
+        - YOUR_APP_WEB_HTTP_PORT=8080
+    image: l3pilot/ui:dev
+    ports:
+      - "8080:8080"
+    volumes:
+      - ../src:/app/src
+      - ../vue.config.js:/app/vue.config.js
+    stdin_open: true
+    tty: true
+    environment:
+      # https://cli.vuejs.org/guide/mode-and-env.html#modes
+      # development is used by vue-cli-service serve
+      - NODE_ENV=development
+      # one way for hot reloading ... see above for details 
+      - CHOKIDAR_USEPOLLING=true
+      - CHOKIDAR_INTERVAL=100
+      - YOUR_APP_WEB_HTTP_PORT=8080

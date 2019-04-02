@@ -1,0 +1,54 @@
+{
+  "name": "L3Pilot-Data-Vis",
+  "version": "1.0.0",
+  "repository": {
+    "type": "git",
+    "url": "https://gitlab.ika.rwth-aachen.de/l3pilot-sp5/pc_db_ui"
+  },
+  "private": true,
+  "scripts": {
+    "serve": "vue-cli-service serve",
+    "build": "vue-cli-service build",
+    "lint": "vue-cli-service lint"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "@statnett/vue-plotly": "^0.2.0",
+    "axios": "^0.18.0",
+    "json5": "^2.1.0",
+    "moment": "^2.4",
+    "plotly.js": "^1.5",
+    "vue": "^2.5.22",
+    "vue-router": "^3.0.1",
+    "vuex": "^3.0.1"
+  },
+  "devDependencies": {
+    "babel-core": "^6.26.0",
+    "babel-loader": "^7.1.5",
+    "babel-preset-env": "^1.6.1",
+    "babel-preset-stage-0": "^6.24.1",
+    "babel-preset-vue": "^2.0.2",
+    "css-loader": "^0.28.11",
+    "html-webpack-plugin": "^3.2.0",
+    "path": "^0.12.7",
+    "vue-loader": "^14.2.3",
+    "vue-template-compiler": "^2.5.16",
+    "webpack": "^4.15.0",
+    "webpack-cli": "^3.0.8",
+    "webpack-dev-server": "^3.1.3",
+    "@vue/cli-plugin-babel": "^3.4.0",
+    "@vue/cli-plugin-eslint": "^3.4.0",
+    "@vue/cli-service": "^3.4.0",
+    "babel-eslint": "^10.0.1",
+    "eslint": "^5.8.0",
+    "eslint-plugin-vue": "^5.0.0",
+    "vue-template-compiler": "^2.5.21"
+  },
+  "eslintConfig": {
+    "root": true,
+    "env": {
+      "node": true,
+       "es6": true
+    }
+  }
+}
