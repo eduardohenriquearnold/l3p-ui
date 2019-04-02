@@ -1,15 +1,21 @@
-L3 Pilot Data Visualisation
-===========================
+# l3pui
 
-This repository consists of a web interface for L3Pilot data visualisation. It is the front-end for the DB developed within SP5.
+## Development
+```
+docker-compose -f docker/docker-compose.dev.yml up
+```
+Note: all node packages are installed during the image building process. If there is any change to package.json the image has to be rebuilt using the previous command followed by `--build`
 
-### Build
+## Deploy
+Build the docker image with 
 ```
-docker build -t l3pilot/ui .
+docker build -f docker/Dockerfile.deploy -t l3pilot/ui:deploy .
 ```
 
-### Deploy
+Additional NGINX settings are modified in the `app.conf` file. (Needs rebuilding after each change).
+
+Run the deployment with
 ```
-docker run -it -p 8080:8080 --rm l3pilot/ui
+docker run -it --rm -p 80:80 l3pilot/ui:deploy
 ```
 
