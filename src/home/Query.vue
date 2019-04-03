@@ -26,7 +26,7 @@
     <div class="form-row col-md-12" v-if="measurements || trips">
         <div class="form-group col-md-4" >
             <label>Type</label>
-            <select v-model="feature" class="custom-select" @change="changeFeature()">
+            <select v-model="feature" class="custom-select" >
               <option v-for="f in highOrderFeatures">{{ f.id }}</option>
             </select>
         </div>
@@ -291,11 +291,6 @@ export default {
           let uniqueTrips = res.filter((v, i, a) => ids.indexOf(v.thing) === i);
           this.result = uniqueTrips
         })
-    },
-    changeFeature: function()
-    {
-      this.baseFeature1 = ''
-      this.baseFeature2 = ''
     }
   },
   filters: {
@@ -307,6 +302,24 @@ export default {
   watch: {
     allInputData: function(){
       this.result = []
+    },
+    feature: function(){
+       this.baseFeature1 = ''
+       this.baseFeature2 = ''
+    },
+    query: function(){
+      this.tripID = ''
+      this.driverID = ''
+      this.feature = ''
+      this.baseFeature1 = ''
+      this.baseFeature2 = ''
+      this.selectedTags = []
+      this.driverTypology = ''
+      this.driverMileageMin = ''
+      this.driverMileageMax = ''
+      this.driverYearsMin = ''
+      this.driverYearsMax = ''
+      this.ownership = false
     }
   }
 
