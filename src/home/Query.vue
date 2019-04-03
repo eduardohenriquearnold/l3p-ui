@@ -25,21 +25,21 @@
 
     <div class="form-row col-md-12" v-if="measurements || trips">
         <div class="form-group col-md-4" >
-            <label>Feature</label>
+            <label>Type</label>
             <select v-model="feature" class="custom-select" @change="changeFeature()">
               <option v-for="f in highOrderFeatures">{{ f.id }}</option>
             </select>
         </div>
 
         <div class="form-group col-md-4" v-if="featureOrder>0">
-          <label>Base Feature 1</label>
+          <label>Performance Indicator 1</label>
           <select v-model="baseFeature1" class="custom-select">
             <option v-for="f in constrainedFeatures">{{ f }}</option>
           </select>
         </div>
 
         <div class="form-group col-md-4" v-if="featureOrder>1">
-          <label>Base Feature 2</label>
+          <label>Performance Indicator 2</label>
           <select v-model="baseFeature2" class="custom-select">
             <option v-for="f in constrainedFeatures">{{ f }}</option>
           </select>
@@ -47,7 +47,7 @@
     </div>
 
     <div class="form-group col-md-12" v-if="measurements">
-      <label class="checkbox-inline">Tags: </label>
+      <label class="checkbox-inline">Conditions:</label>
         <div v-for="t in tags" class="form-check form-check-inline">
         <input class="form-check-input" type="checkbox" v-bind:id="t" v-bind:value="t" v-model="selectedTags">
         <label class="form-check-label" v-bind:for="t">{{ t }}</label>
