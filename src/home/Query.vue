@@ -48,7 +48,7 @@
 
     <div class="form-group col-md-12" v-if="measurements">
       <label class="checkbox-inline">Conditions:</label>
-        <div v-for="t in tags" class="form-check form-check-inline">
+        <div v-for="t in constrainedTags" class="form-check form-check-inline">
         <input class="form-check-input" type="checkbox" v-bind:id="t" v-bind:value="t" v-model="selectedTags">
         <label class="form-check-label" v-bind:for="t">{{ t }}</label>
         </div>
@@ -226,6 +226,7 @@ export default {
       baseFeature2: '',
       tags: [],
       selectedTags: [],
+      tagRules: [],
       driverTypologies: [],
       driverTypology: '',
       driverMileageMin: '',
@@ -253,6 +254,9 @@ export default {
     constrainedFeatures: function() {
       return this.featureRules.filter(r => r.element1 === this.feature).map(r => r.element2)
     },
+    constrainedTags: function() {
+      return this.tagRules.filter(r => r.element1 === this.feature).map(r => r.element2)
+    },
     measurements: function(){
       return this.query === 'measurements'
     },
@@ -272,7 +276,8 @@ export default {
     tagsService.getTags().then(tags => {this.tags = tags})
     driversService.getTypologies().then(typologies => {this.driverTypologies = typologies})
     featuresService.getFeatures().then(features => {this.features = features})
-    featuresService.getConstrainedFeatures(this.feature).then(rules => {this.featureRules = rules})
+    featuresService.getConstrainedFeatures().then(rules => {this.featureRules = rules})
+    featuresService.getConstrainedTags().then(rules => {this.tagRules = rules})
   },
   methods: {
     handleSubmit: function(){
