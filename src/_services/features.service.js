@@ -2,7 +2,7 @@ import config from 'config';
 import axios from 'axios';
 
 export const featuresService = {
-    getFeatures, getConstrainedFeatures
+    getFeatures, getConstrainedFeatures, getConstrainedTags
 };
 
 function getFeatures()
@@ -29,9 +29,9 @@ function getFeatures()
   return makeReq()
 }
 
-function getConstrainedFeatures()
+function getConstrained(type1,type2)
 {
-  var query = `${config.apiUrl}/constraints?filter=[{"type1":"Feature", "type2":"Feature", "relationship":"dependency"}]`
+  var query = `${config.apiUrl}/constraints?filter=[{"type1":"${type1}", "type2":"${type2}", "relationship":"dependency"}]`
 
   function makeReq(page=1, results=[])
   {
@@ -51,5 +51,12 @@ function getConstrainedFeatures()
   }
 
   return makeReq()
+}
 
+function getConstrainedFeatures(){
+  return getConstrained("Feature","Feature")
+}
+
+function getConstrainedTags(){
+  return getConstrained("Feature", "Tag")
 }
