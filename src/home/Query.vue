@@ -98,8 +98,9 @@
       <button type="submit" class="btn btn-primary">Submit</button>
     </div>
 
-    <!-- Results Table -->
-    <b-table striped hover :fields="fieldsTable" :items="result"></b-table>
+    <!-- Results Table and pagination -->
+    <b-table striped hover :fields="fieldsTable" :items="result" :per-page="10" :current-page="currentPage" id="resultTable"></b-table>
+    <b-pagination v-model="currentPage" :total-rows="result.length" :per-page="10" aria-controls="resultTable" v-if="result.length>0"></b-pagination>
 
     <!-- Results plots -->
     <div v-if="result.length>0 && measurements">
@@ -142,7 +143,8 @@ export default {
       driverYearsMin: '',
       driverYearsMax: '',
       ownership: false,
-      result: []
+      result: [],
+      currentPage: 1
     }
   },
   computed: {
