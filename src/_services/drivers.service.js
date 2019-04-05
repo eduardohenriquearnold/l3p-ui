@@ -54,6 +54,13 @@ function getDriver({id='', typology='', mileageMin='', mileageMax='', yearsMin='
     })
   }
 
-  return makeReq()
-
+  //Select data to present
+  return makeReq().then(res => {
+    var filtered = []
+    res.forEach(driver => filtered.push({'driver_ID':driver._id,
+                                         'type': driver.metadata.type,
+                                         'mileage':driver.metadata.mileage,
+                                         'years':driver.metadata.years}))
+    return filtered
+  })
 }

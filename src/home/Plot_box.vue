@@ -13,15 +13,14 @@ export default{
   {
     var traces = []
 
-    this.result.forEach(function(measurement, idx){
-      let [avg, std, min, max, med, n_samples] = measurement.values[0].value
-      let q1 = min+2*std
-      let q3 = max-2*std
+    this.result.forEach(function(m, idx){
+      let q1 = m.min+2*m.stdev
+      let q3 = m.max-2*m.stdev
       //TODO get q1,q3 from API.
       //TODO find a way of displaying avg correctly 
       traces.push({
-           y: [min, q1, q1, med, q3, q3, max],
-           name: measurement._id,
+           y: [m.min, q1, q1, m.med, q3, q3, m.max],
+           name: m.measurement_ID,
            type: 'box',
            boxmean: true,
          })
