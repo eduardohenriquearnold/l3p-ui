@@ -18,7 +18,7 @@ export default{
       var ys=[]
       var xs=[]
       var ws=[]
-      measurement.values.forEach(bin => {
+      measurement.hist.forEach(bin => {
         bin = bin.value
         //TODO: shouldn't width be specified by (end-start)?
         //ws.push(bin[1]-bin[0])

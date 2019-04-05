@@ -1,11 +1,61 @@
 import config from 'config';
 import axios from 'axios';
+import moment from 'moment'
 
 const JSON5 = require('json5')
 
 export const measurementsService = {
     getMeasurements
 };
+
+function formatDate(value){
+      if (value)
+        return moment(String(value)).format('DD/MM/YYYY hh:mm')
+  }
+
+function processRaw(res){
+    //Keep only relevant fields for results
+    return res.then(res => {
+      var filtered = []
+
+      res.forEach(m => {
+        var data = {
+          'trip_ID': m.thing,
+          'measurement_ID': m._id,
+          'driver_ID': m.thing_docs[0]._id,
+          'start_date': formatDate(m.startDate),
+          'end_date': formatDate(m.endDate),
+          'device': m.device, 
+        }
+
+        if (m.feature == 'Stat'){
+          data.avg     = m.values[0].value[0]
+          data.stdev   = m.values[0].value[1]
+          data.min     = m.values[0].value[2]
+          data.max     = m.values[0].value[3]
+          data.med     = m.values[0].value[4]
+          data.samples = m.values[0].value[5]
+        }
+
+        if (m.feature == 'Correlation'){
+          data.correlation_value = m.values[0].value[0]
+          data.P_value           = m.values[0].value[1]
+        }
+
+        if (m.feature == 'Single value PI'){
+          data.PI = m.values[0].value[0]
+        }
+
+        if (m.feature == 'Histogram'){
+          data.hist = m.values
+        }
+
+        filtered.push(data)
+      })
+
+      return filtered
+    })
+}
 
 function getMeasurements({tripID='', driverID='', feature='', baseFeature1='', baseFeature2='', tags=[], driverTypology='', driverMileageMin='', driverMileageMax='', driverYearsMin='', driverYearsMax=''})
 {
@@ -46,6 +96,7 @@ function getMeasurements({tripID='', driverID='', feature='', baseFeature1='', b
       var req = `${config.apiUrl}/measurements?aggregator=[{"$lookup": { "from": "things", "localField": "relatedThings", "foreignField": "_id", "as": "thing_docs"}} ]`
     }
 
+    //Get all result pages (API pagination)
     function makeReq(page=1, measurements=[])
     {
       return axios.get(req+`&page=${page}`)
@@ -64,5 +115,5 @@ function getMeasurements({tripID='', driverID='', feature='', baseFeature1='', b
       })
     }
 
-    return makeReq()
+    return processRaw(makeReq())
 }

@@ -98,99 +98,9 @@
       <button type="submit" class="btn btn-primary">Submit</button>
     </div>
 
-    <!-- Results Section -->
-    <div v-if="result.length>0">
-
-      <!-- Drivers table -->
-      <table class="table" v-if="drivers">
-          <thead class="thead-dark">
-            <tr>
-              <th scope="col">Driver ID</th>
-              <th scope="col">Type</th>
-              <th scope="col">Mileage</th>
-              <th scope="col">Years</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="driver in result">
-              <th scope="row">{{ driver._id }}</th>
-              <td>{{ driver.metadata.type }}</td>
-              <td>{{ driver.metadata.mileage }}</td>
-              <td>{{ driver.metadata.years }}</td>
-            </tr>
-          </tbody>
-      </table>
-
-      <!-- Trips table -->
-      <table class="table" v-if="trips">
-          <thead class="thead-dark">
-            <tr>
-              <th scope="col">Trip ID</th>
-              <th scope="col">Measurement ID</th>
-              <th scope="col">Driver ID</th>
-              <th scope="col">Start Date</th>
-              <th scope="col">End Date</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="trip in result">
-              <th scope="row">{{ trip.thing }}</th>
-              <td>{{ trip._id }}</td>
-              <td>{{ trip.thing_docs[0]._id }}</td>
-              <td>{{ trip.startDate | formatDate }}</td>
-              <td>{{ trip.endDate | formatDate }}</td>
-            </tr>
-          </tbody>
-      </table>
-
-      <!-- Measurmeents table -->
-      <table class="table" v-if="measurements">
-          <thead class="thead-dark">
-            <tr>
-              <th scope="col">Trip ID</th>
-              <th scope="col">Measurement ID</th>
-              <th scope="col">Driver ID</th>
-              <th scope="col">Start Date</th>
-              <th scope="col">End Date</th>
-              <th scope="col">Device</th>
-              <!-- Stat specific Fields -->
-              <th scope="col" v-if="feature==='Stat'">Avg</th>
-              <th scope="col" v-if="feature==='Stat'">Stdev</th>
-              <th scope="col" v-if="feature==='Stat'">Min</th>
-              <th scope="col" v-if="feature==='Stat'">Max</th>
-              <th scope="col" v-if="feature==='Stat'">Med</th>
-              <th scope="col" v-if="feature==='Stat'">Samples</th>
-              <!-- Corr specific Fields -->
-              <th scope="col" v-if="feature==='Correlation'">Correlation Value</th>
-              <th scope="col" v-if="feature==='Correlation'">P-Value</th>
-              <!-- PI specific Fields -->
-              <th scope="col" v-if="feature==='Single value PI'">PI</th>              
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="trip in result">
-              <th scope="row">{{ trip.thing }}</th>
-              <td>{{ trip._id }}</td>
-              <td>{{ trip.thing_docs[0]._id }}</td>
-              <td>{{ trip.startDate | formatDate }}</td>
-              <td>{{ trip.endDate | formatDate }}</td>
-              <td>{{ trip.device }}</td>
-              <!-- Stat specific Fields -->
-              <td v-if="feature==='Stat'">{{ trip.values[0].value[0] }}</td>
-              <td v-if="feature==='Stat'">{{ trip.values[0].value[1] }}</td>
-              <td v-if="feature==='Stat'">{{ trip.values[0].value[2] }}</td>
-              <td v-if="feature==='Stat'">{{ trip.values[0].value[3] }}</td>
-              <td v-if="feature==='Stat'">{{ trip.values[0].value[4] }}</td>
-              <td v-if="feature==='Stat'">{{ trip.values[0].value[5] }}</td>
-              <!-- Corr specific Fields -->
-              <td v-if="feature==='Correlation'">{{ trip.values[0].value[0] }}</td>
-              <td v-if="feature==='Correlation'">{{ trip.values[0].value[1] }}</td>
-              <!-- PI specific Fields -->
-              <td v-if="feature==='Single value PI'">{{ trip.values[0].value[0] }}</td>
-            </tr>
-          </tbody>
-      </table>
-    </div>
+    <!-- Results Table and pagination -->
+    <b-table striped hover :fields="fieldsTable" :items="result" :per-page="10" :current-page="currentPage" id="resultTable"></b-table>
+    <b-pagination v-model="currentPage" :total-rows="result.length" :per-page="10" aria-controls="resultTable" v-if="result.length>0"></b-pagination>
 
     <!-- Results plots -->
     <div v-if="result.length>0 && measurements">
@@ -205,7 +115,6 @@
 </template>
 
 <script>
-import moment from 'moment'
 import { featuresService, tagsService, driversService, measurementsService } from '../_services';
 import PlotBox from './Plot_box.vue'
 import PlotHist from './Plot_hist.vue'
@@ -234,7 +143,8 @@ export default {
       driverYearsMin: '',
       driverYearsMax: '',
       ownership: false,
-      result: []
+      result: [],
+      currentPage: 1
     }
   },
   computed: {
@@ -268,8 +178,20 @@ export default {
     },
     allInputData: function(){
       return this.query,this.tripID,this.driverID,this.feature,this.baseFeature1,this.baseFeature2,this.selectedTags,this.driverTypology,this.driverMileageMin,this.driverMileageMax,this.driverYearsMin,this.driverYearsMax, Date.now()
-    }
+    },
+    fieldsTable: function(){
+      if (this.result.length >0 )
+      {
+        var fields = Object.keys(this.result[0])
 
+        //If trips keep only the top 6 info (measurements info are not important)
+        if (this.trips)
+          fields = fields.slice(0,7)
+
+        //Remove hist field from table display
+        return fields.filter(f => f != 'hist')
+      }
+    }
   },
   created: function(){
     //Load dynamic data from services
@@ -292,16 +214,10 @@ export default {
       if (this.trips)
         measurementsService.getMeasurements({tripID:this.tripID, driverID:this.driverID, feature:this.feature, baseFeature1:this.baseFeature1, baseFeature2:this.baseFeature2})
         .then(res => {
-          let ids = res.map(m => m.thing)
-          let uniqueTrips = res.filter((v, i, a) => ids.indexOf(v.thing) === i);
+          let ids = res.map(m => m.trip_ID)
+          let uniqueTrips = res.filter((v, i, a) => ids.indexOf(v.trip_ID) === i);
           this.result = uniqueTrips
         })
-    }
-  },
-  filters: {
-    formatDate: function(value){
-        if (value)
-          return moment(String(value)).format('DD/MM/YYYY hh:mm')
     }
   },
   watch: {
@@ -327,7 +243,5 @@ export default {
       this.ownership = false
     }
   }
-
-
 }
 </script>
