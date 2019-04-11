@@ -46,7 +46,8 @@ function processRaw(res){
         }
 
         if (m.feature == 'Histogram'){
-          data.hist = m.values
+          data.hist = [] 
+          m.values.forEach(bin => {data.hist.push({'binStart':bin.value[0][0], 'binEnd':bin.value[1][0], 'count':bin.value[2][0]})})
         }
 
         filtered.push(data)

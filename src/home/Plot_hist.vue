@@ -19,19 +19,16 @@ export default{
       var xs=[]
       var ws=[]
       measurement.hist.forEach(bin => {
-        bin = bin.value
-        //TODO: shouldn't width be specified by (end-start)?
-        //ws.push(bin[1]-bin[0])
-        ws.push(0.5)
-        ys.push(bin[2])
-        xs.push(bin[3])
+        ws.push(bin.binEnd - bin.binStart)     //width of the plot (bin size)
+        ys.push(bin.count)                     //frequency or sample count
+        xs.push(0.5*(bin.binEnd+bin.binStart)) //mid value of bin
       })
 
       traces.push({
            y: ys,
            x: xs,
            width: ws,
-           name: measurement._id,
+           name: measurement.measurement_ID,
            type: 'bar',
          })
 
@@ -40,8 +37,6 @@ export default{
     return {
           data: traces,
           layout: {
-            autosize: true,
-            barmode: 'relative',
             hovermode: 'closest',
             margin: {
               r: 80,
@@ -50,9 +45,7 @@ export default{
             showlegend: true,
             width: 840,
             xaxis: {
-              autorange: true,
               showticklabels: true,
-              type: 'category'
             },
             yaxis: {
               autorange: true,
