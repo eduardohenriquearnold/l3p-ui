@@ -22,7 +22,6 @@ function processRaw(res){
         var data = {
           'trip_ID': m.thing,
           'measurement_ID': m._id,
-          'driver_ID': m.thing_docs[0]._id,
           'start_date': formatDate(m.startDate),
           'end_date': formatDate(m.endDate),
           'device': m.device, 
