@@ -2,8 +2,6 @@ import config from 'config';
 import axios from 'axios';
 import moment from 'moment'
 
-const JSON5 = require('json5')
-
 export const measurementsService = {
     getMeasurements
 };
@@ -101,7 +99,7 @@ function getMeasurements({tripID='', driverID='', feature='', baseFeature1='', b
     {
       return axios.get(req+`&page=${page}`)
       .then(res => {
-        let data = JSON5.parse(res.data)
+        let data = res.data
         var curMeasurements = data.data
         measurements.push(...curMeasurements)
 
