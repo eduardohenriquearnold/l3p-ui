@@ -24,7 +24,6 @@ function processRaw(res){
           'measurement_ID': m._id,
           'start_date': formatDate(m.startDate),
           'end_date': formatDate(m.endDate),
-          'device': m.device, 
         }
 
         if (m.feature == 'Stat'){
