@@ -2,8 +2,6 @@ import config from 'config';
 import axios from 'axios';
 import moment from 'moment'
 
-const JSON5 = require('json5')
-
 export const measurementsService = {
     getMeasurements
 };
@@ -46,7 +44,8 @@ function processRaw(res){
         }
 
         if (m.feature == 'Histogram'){
-          data.hist = m.values
+          data.hist = [] 
+          m.values.forEach(bin => {data.hist.push({'binStart':bin.value[0][0], 'binEnd':bin.value[1][0], 'count':bin.value[2][0]})})
         }
 
         filtered.push(data)
@@ -100,7 +99,7 @@ function getMeasurements({tripID='', driverID='', feature='', baseFeature1='', b
     {
       return axios.get(req+`&page=${page}`)
       .then(res => {
-        let data = JSON5.parse(res.data)
+        let data = res.data
         var curMeasurements = data.data
         measurements.push(...curMeasurements)
 
