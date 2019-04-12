@@ -37,7 +37,8 @@ export default{
     return {
           data: traces,
           layout: {
-            hovermode: 'closest',
+            overmode: 'closest',
+            barmode: 'relative',
             margin: {
               r: 80,
               l: 20
