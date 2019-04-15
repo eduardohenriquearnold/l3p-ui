@@ -22,7 +22,6 @@ function processRaw(res){
           'measurement_ID': m._id,
           'start_date': formatDate(m.startDate),
           'end_date': formatDate(m.endDate),
-          'device': m.device, 
         }
 
         if (m.feature == 'Stat'){
@@ -39,8 +38,9 @@ function processRaw(res){
           data.P_value           = m.values[0].value[1]
         }
 
-        if (m.feature == 'Single value PI'){
-          data.PI = m.values[0].value[0]
+        if (m.feature == 'Frequency' || m.feature == 'Metadata'){
+          data.value = m.values[0].value[0][0]
+          data.samples = m.values[0].value[1][0]
         }
 
         if (m.feature == 'Histogram'){
