@@ -96,6 +96,7 @@
 
     <div class="form-group col-md-12">
       <button type="submit" class="btn btn-primary">Submit</button>
+      <ExportCSV :result="result" :selectedTags="selectedTags"></ExportCSV>
     </div>
 
     <!-- Results Table and pagination -->
@@ -118,10 +119,11 @@
 import { featuresService, tagsService, driversService, measurementsService } from '../_services';
 import PlotBox from './Plot_box.vue'
 import PlotHist from './Plot_hist.vue'
+import ExportCSV from './Export_csv.vue'
 
 export default {
   name:'Query',
-  components: {PlotBox, PlotHist},
+  components: {PlotBox, PlotHist, ExportCSV},
   data: function ()
   {
     return {
