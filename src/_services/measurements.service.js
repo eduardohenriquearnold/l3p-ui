@@ -2,8 +2,6 @@ import config from 'config';
 import axios from 'axios';
 import moment from 'moment'
 
-const JSON5 = require('json5')
-
 export const measurementsService = {
     getMeasurements
 };
@@ -40,8 +38,9 @@ function processRaw(res){
           data.P_value           = m.values[0].value[1]
         }
 
-        if (m.feature == 'Single value PI'){
-          data.PI = m.values[0].value[0]
+        if (m.feature == 'Frequency' || m.feature == 'Metadata'){
+          data.value = m.values[0].value[0][0]
+          data.samples = m.values[0].value[1][0]
         }
 
         if (m.feature == 'Histogram'){
@@ -99,7 +98,8 @@ function getMeasurements({tripID='', driverID='', feature='', baseFeature1='', b
     {
       return axios.get(req+`&page=${page}`)
       .then(res => {
-        let data = JSON5.parse(res.data)
+        // let data = JSON5.parse(res.data)
+        let data = res.data
         var curMeasurements = data.data
         measurements.push(...curMeasurements)
 
