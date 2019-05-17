@@ -103,12 +103,6 @@
     <b-table striped hover :fields="fieldsTable" :items="result" :per-page="10" :current-page="currentPage" id="resultTable"></b-table>
     <b-pagination v-model="currentPage" :total-rows="result.length" :per-page="10" aria-controls="resultTable" v-if="result.length>0"></b-pagination>
 
-    <!-- Results plots -->
-    <div v-if="result.length>0 && measurements">
-      <PlotBox :result="result" v-if="feature==='Stat'" />
-      <PlotHist :result="result" v-if="feature==='Histogram'" />
-    </div>
-
     {{result.length}} results retrieved
 
   </form>
@@ -117,13 +111,11 @@
 
 <script>
 import { featuresService, tagsService, driversService, measurementsService } from '../_services';
-import PlotBox from './Plot_box.vue'
-import PlotHist from './Plot_hist.vue'
 import ExportCSV from './Export_csv.vue'
 
 export default {
   name:'Query',
-  components: {PlotBox, PlotHist, ExportCSV},
+  components: {ExportCSV},
   data: function ()
   {
     return {
@@ -189,9 +181,6 @@ export default {
         //If trips keep only the top 6 info (measurements info are not important)
         if (this.trips)
           fields = fields.slice(0,7)
-
-        //Remove hist field from table display
-        return fields.filter(f => f != 'hist')
       }
     }
   },
