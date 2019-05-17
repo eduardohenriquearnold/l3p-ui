@@ -103,11 +103,6 @@
     <b-table striped hover :fields="fieldsTable" :items="result" :per-page="10" :current-page="currentPage" id="resultTable"></b-table>
     <b-pagination v-model="currentPage" :total-rows="result.length" :per-page="10" aria-controls="resultTable" v-if="result.length>0"></b-pagination>
 
-    <!-- Results plots -->
-    <div v-if="result.length>0 && measurements">
-      <PlotBox :result="result" v-if="feature==='Stat'" />
-    </div>
-
     {{result.length}} results retrieved
 
   </form>
@@ -116,12 +111,11 @@
 
 <script>
 import { featuresService, tagsService, driversService, measurementsService } from '../_services';
-import PlotBox from './Plot_box.vue'
 import ExportCSV from './Export_csv.vue'
 
 export default {
   name:'Query',
-  components: {PlotBox, ExportCSV},
+  components: {ExportCSV},
   data: function ()
   {
     return {
