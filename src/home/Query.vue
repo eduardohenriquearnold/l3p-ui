@@ -106,7 +106,6 @@
     <!-- Results plots -->
     <div v-if="result.length>0 && measurements">
       <PlotBox :result="result" v-if="feature==='Stat'" />
-      <PlotHist :result="result" v-if="feature==='Histogram'" />
     </div>
 
     {{result.length}} results retrieved
@@ -118,12 +117,11 @@
 <script>
 import { featuresService, tagsService, driversService, measurementsService } from '../_services';
 import PlotBox from './Plot_box.vue'
-import PlotHist from './Plot_hist.vue'
 import ExportCSV from './Export_csv.vue'
 
 export default {
   name:'Query',
-  components: {PlotBox, PlotHist, ExportCSV},
+  components: {PlotBox, ExportCSV},
   data: function ()
   {
     return {
@@ -189,9 +187,6 @@ export default {
         //If trips keep only the top 6 info (measurements info are not important)
         if (this.trips)
           fields = fields.slice(0,7)
-
-        //Remove hist field from table display
-        return fields.filter(f => f != 'hist')
       }
     }
   },
