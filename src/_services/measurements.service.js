@@ -6,12 +6,23 @@ export const measurementsService = {
     getMeasurements
 };
 
+function getFeatureDimensions(feature)
+{
+  var query = `${config.apiUrl}/features/${feature}`
+  return axios.get(query).then(res => {
+    return res.data.dimensions
+  })
+  .catch(err => {
+    console.log(err)  
+  })
+}
+
 function formatDate(value){
       if (value)
         return moment(String(value)).format('DD/MM/YYYY hh:mm')
   }
 
-function processRaw(res){
+function processRaw(res, featureDimensions){
     //Keep only relevant fields for results
     return res.then(res => {
       var filtered = []
@@ -24,29 +35,10 @@ function processRaw(res){
           'end_date': formatDate(m.endDate),
         }
 
-        if (m.feature == 'Stat'){
-          data.avg     = m.values[0].value[0]
-          data.stdev   = m.values[0].value[1]
-          data.min     = m.values[0].value[2]
-          data.max     = m.values[0].value[3]
-          data.med     = m.values[0].value[4]
-          data.samples = m.values[0].value[5]
-        }
-
-        if (m.feature == 'Correlation'){
-          data.correlation_value = m.values[0].value[0]
-          data.P_value           = m.values[0].value[1]
-        }
-
-        if (m.feature == 'Frequency' || m.feature == 'Metadata'){
-          data.value = m.values[0].value[0][0]
-          data.samples = m.values[0].value[1][0]
-        }
-
-        if (m.feature == 'Histogram'){
-          data.hist = [] 
-          m.values.forEach(bin => {data.hist.push({'binStart':bin.value[0][0], 'binEnd':bin.value[1][0], 'count':bin.value[2][0]})})
-        }
+        // for (let [index, dim] of featureDimensions.entries()){
+          // var dimName = dim.name
+          // data[dimName] = m.values[0].value[index][0]
+        // }
 
         filtered.push(data)
       })
@@ -55,7 +47,7 @@ function processRaw(res){
     })
 }
 
-function getMeasurements({tripID='', driverID='', feature='', baseFeature1='', baseFeature2='', tags=[], driverTypology='', driverMileageMin='', driverMileageMax='', driverYearsMin='', driverYearsMax=''})
+function getMeasurements({tripID='', driverID='', feature='', pi='', tags=[], driverTypology='', driverMileageMin='', driverMileageMax='', driverYearsMin='', driverYearsMax=''})
 {
   let query = []
 
@@ -64,11 +56,8 @@ function getMeasurements({tripID='', driverID='', feature='', baseFeature1='', b
     query.push({'thing':tripID})
   if (feature!='')
     query.push({'feature':feature})
-  if (baseFeature1!='')
-    if(baseFeature2!='')
-      query.push({'baseFeatures': {"$size":2, "$all":[baseFeature1, baseFeature2]}})
-    else
-      query.push({'baseFeatures': {"$size":1, "$all":[baseFeature1]}})
+  if (pi!='')
+      query.push({'baseFeatures': pi})
   if (tags.length>0)
     query.push({'tags': {"$size":tags.length, "$all":tags}})
 
@@ -113,5 +102,12 @@ function getMeasurements({tripID='', driverID='', feature='', baseFeature1='', b
       })
     }
 
-    return processRaw(makeReq())
+    //Get feature dimensions (feature service)
+    if (pi != '')
+      var featureDimensions = getFeatureDimensions(pi)
+    else
+      var featureDimensions = getFeatureDimensions(feature)
+    featureDimensions.then(res => {console.log(res)})
+
+    return processRaw(makeReq(), featureDimensions)
 }
