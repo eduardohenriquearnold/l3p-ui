@@ -23,8 +23,13 @@ function formatDate(value){
   }
 
 function processRaw(res, featureDimensions){
+    //Joint promise for both results and feat dimensions
+    var Results = Promise.all([res, featureDimensions])
+
     //Keep only relevant fields for results
-    return res.then(res => {
+    return Results.then(resall => {
+      var res = resall[0]
+      var featdims = resall[1]
       var filtered = []
 
       res.forEach(m => {
@@ -35,16 +40,15 @@ function processRaw(res, featureDimensions){
           'end_date': formatDate(m.endDate),
         }
 
-        // for (let [index, dim] of featureDimensions.entries()){
-          // var dimName = dim.name
-          // data[dimName] = m.values[0].value[index][0]
-        // }
+        for (let [index, dim] of featdims.entries())
+          data[dim.name] = m.values[0].value[index][0]
 
         filtered.push(data)
       })
 
       return filtered
     })
+    .catch(err => {console.log(err)})
 }
 
 function getMeasurements({tripID='', driverID='', feature='', pi='', tags=[], driverTypology='', driverMileageMin='', driverMileageMax='', driverYearsMin='', driverYearsMax=''})
@@ -77,11 +81,13 @@ function getMeasurements({tripID='', driverID='', feature='', pi='', tags=[], dr
 
   if (query.length>0)  {
       query = JSON.stringify(query)
-      var req = `${config.apiUrl}/measurements?aggregator=[{"$lookup": { "from": "things", "localField": "relatedThings", "foreignField": "_id", "as": "thing_docs"}}, { "$match":{ "$and": ${query}}} ]`
+      var req = `${config.apiUrl}/measurements?aggregator=[{"$lookup": { "from": "things", "localField": "relatedThings", "foreignField": "_id", "as": "thing_docs"}}, { "$match":{ "$and": ${query}}}]`
     }
     else {
       var req = `${config.apiUrl}/measurements?aggregator=[{"$lookup": { "from": "things", "localField": "relatedThings", "foreignField": "_id", "as": "thing_docs"}} ]`
     }
+
+  console.log(req)
 
     //Get all result pages (API pagination)
     function makeReq(page=1, measurements=[])

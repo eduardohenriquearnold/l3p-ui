@@ -163,16 +163,6 @@ export default {
     },
     allInputData: function(){
       return this.query,this.tripID,this.driverID,this.feature,this.pi,this.selectedTags,this.driverTypology,this.driverMileageMin,this.driverMileageMax,this.driverYearsMin,this.driverYearsMax, Date.now()
-    },
-    fieldsTable: function(){
-      if (this.result.length >0 )
-      {
-        var fields = Object.keys(this.result[0])
-
-        //If trips keep only the top 6 info (measurements info are not important)
-        if (this.trips)
-          fields = fields.slice(0,7)
-      }
     }
   },
   created: function(){
