@@ -31,20 +31,12 @@
             </select>
         </div>
 
-        <div class="form-group col-md-4" v-if="featureOrder>0">
-          <label>Performance Indicator 1</label>
-          <select v-model="baseFeature1" class="custom-select">
+        <div class="form-group col-md-4" v-if="constrainedFeatures.length>0">
+          <label>Performance Indicator</label>
+          <select v-model="pi" class="custom-select">
             <option v-for="f in constrainedFeatures">{{ f }}</option>
           </select>
         </div>
-
-        <div class="form-group col-md-4" v-if="featureOrder>1">
-          <label>Performance Indicator 2</label>
-          <select v-model="baseFeature2" class="custom-select">
-            <option v-for="f in constrainedFeatures">{{ f }}</option>
-          </select>
-        </div>
-    </div>
 
     <div class="form-group col-md-12" v-if="measurements">
       <label class="checkbox-inline">Conditions:</label>
@@ -52,6 +44,7 @@
         <input class="form-check-input" type="checkbox" v-bind:id="t" v-bind:value="t" v-model="selectedTags">
         <label class="form-check-label" v-bind:for="t">{{ t }}</label>
         </div>
+    </div>
     </div>
 
     <div class="form-row col-md-12 align-items-end" v-if="measurements || drivers">
@@ -84,7 +77,6 @@
           <input v-model="driverYearsMax" type="text" class="form-control here" placeholder="max">
         </div>
       </div>
-
     </div>
 
     <div class="form-group col-md-6" v-if="false">
@@ -125,8 +117,7 @@ export default {
       features: [],
       featureRules: [],
       feature: '',
-      baseFeature1: '',
-      baseFeature2: '',
+      pi: '',
       tags: [],
       selectedTags: [],
       tagRules: [],
@@ -171,7 +162,7 @@ export default {
       return this.query === 'trips'
     },
     allInputData: function(){
-      return this.query,this.tripID,this.driverID,this.feature,this.baseFeature1,this.baseFeature2,this.selectedTags,this.driverTypology,this.driverMileageMin,this.driverMileageMax,this.driverYearsMin,this.driverYearsMax, Date.now()
+      return this.query,this.tripID,this.driverID,this.feature,this.pi,this.selectedTags,this.driverTypology,this.driverMileageMin,this.driverMileageMax,this.driverYearsMin,this.driverYearsMax, Date.now()
     },
     fieldsTable: function(){
       if (this.result.length >0 )
@@ -200,10 +191,10 @@ export default {
         driversService.getDriver({id:this.driverID, typology:this.driverTypology, mileageMin:this.driverMileageMin, mileageMax:this.driverMileageMax, yearsMin:this.driverYearsMin, yearsMax:this.driverYearsMax}).then(res => {this.result = res})
 
       if (this.measurements)
-        measurementsService.getMeasurements({tripID:this.tripID, driverID:this.driverID, feature:this.feature, baseFeature1:this.baseFeature1, baseFeature2:this.baseFeature2, tags:this.selectedTags, driverTypology:this.driverTypology, driverMileageMin:this.driverMileageMin, driverMileageMax:this.driverMileageMax, driverYearsMin:this.driverYearsMin, driverYearsMax:this.driverYearsMax}).then(res => {this.result = res})
+        measurementsService.getMeasurements({tripID:this.tripID, driverID:this.driverID, feature:this.feature, pi:this.pi, tags:this.selectedTags, driverTypology:this.driverTypology, driverMileageMin:this.driverMileageMin, driverMileageMax:this.driverMileageMax, driverYearsMin:this.driverYearsMin, driverYearsMax:this.driverYearsMax}).then(res => {this.result = res})
 
       if (this.trips)
-        measurementsService.getMeasurements({tripID:this.tripID, driverID:this.driverID, feature:this.feature, baseFeature1:this.baseFeature1, baseFeature2:this.baseFeature2})
+        measurementsService.getMeasurements({tripID:this.tripID, driverID:this.driverID, feature:this.feature, pi:this.pi})
         .then(res => {
           let ids = res.map(m => m.trip_ID)
           let uniqueTrips = res.filter((v, i, a) => ids.indexOf(v.trip_ID) === i);
@@ -216,15 +207,13 @@ export default {
       this.result = []
     },
     feature: function(){
-       this.baseFeature1 = ''
-       this.baseFeature2 = ''
+       this.pi= ''
     },
     query: function(){
       this.tripID = ''
       this.driverID = ''
       this.feature = ''
-      this.baseFeature1 = ''
-      this.baseFeature2 = ''
+      this.pi = ''
       this.selectedTags = []
       this.driverTypology = ''
       this.driverMileageMin = ''
