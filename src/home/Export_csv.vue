@@ -1,25 +1,18 @@
 <template>
-<button type="button" class="btn btn-primary" v-on:click="downloadCSV()" :disabled="result.length == 0">Export</button>
+<button type="button" class="btn btn-primary" v-on:click="downloadCSV()" :disabled="result.length == 0 || loading == true">Export</button>
 </template>
 
 <script>
 
 export default{
     name: 'ExportCSV',
-    props: ['result', 'selectedTags'],
+    props: ['result', 'selectedTags', 'loading'],
 
     methods: {
         toCSV: function(){
         const { Parser } = require('json2csv');
         var fields = Object.keys(this.result[0])
-        if (fields[fields.length-1] == 'hist')
-        {
-            fields.pop()
-            fields.push('hist.binStart')
-            fields.push('hist.binEnd')
-            fields.push('hist.count')
-        }
-        const json2csvParser = new Parser({ fields, unwind: ['hist'], unwindBlank: true });
+        const json2csvParser = new Parser({ fields });
         var csv = json2csvParser.parse(this.result);
         if (this.selectedTags.length>0)
         {
@@ -40,11 +33,12 @@ export default{
             csv = 'data:text/csv;charset=utf-8,' + csv;
         }
         data = encodeURI(csv);
-
         link = document.createElement('a');
         link.setAttribute('href', data);
         link.setAttribute('download', filename);
+        document.body.appendChild(link);
         link.click();
+        document.body.removeChild(link);
         }
     }
 }
