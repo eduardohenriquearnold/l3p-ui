@@ -169,7 +169,14 @@ export default {
       {
         var keys = Object.keys(this.result[0])
         var fields = []
-        keys.forEach(k => {fields.push({key:k, label:k})})
+        //Give label to keys having special characters (otherwise they automatic labelling remove them)
+        keys.forEach(k => {
+          var format = /[!@#$%^&*()+\-=\[\]{};':"\\|,.<>\/?]+/
+          if (format.test(k))
+            fields.push({key:k, label:k})
+          else
+            fields.push({key:k})
+        })
         return fields
       }
     }
