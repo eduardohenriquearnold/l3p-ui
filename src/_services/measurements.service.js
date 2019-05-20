@@ -41,7 +41,7 @@ function processRaw(res, featureDimensions){
         }
 
         for (let [index, dim] of featdims.entries())
-          data[dim.name] = m.values[0].value[index][0]
+          data[dim.name] = m.values[0].value[index].join(',')
 
         filtered.push(data)
       })
