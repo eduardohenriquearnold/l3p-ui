@@ -93,7 +93,7 @@
 
     <!-- Results Table and pagination -->
     <b-table responsive striped hover :fields="resultFields" :items="result" :per-page="10" :current-page="currentPage" id="resultTable"></b-table>
-    <b-pagination v-model="currentPage" :total-rows="result.length" :per-page="10" aria-controls="resultTable" v-if="result.length>0"></b-pagination>
+    <b-pagination v-model="currentPage" :total-rows="result.length" limit=10 :per-page="10" aria-controls="resultTable" v-if="result.length>0"></b-pagination>
 
     {{result.length}} results retrieved
 
