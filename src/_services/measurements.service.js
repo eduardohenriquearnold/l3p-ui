@@ -27,9 +27,8 @@ function processRaw(res, featureDimensions){
     var Results = Promise.all([res, featureDimensions])
 
     //Keep only relevant fields for results
-    return Results.then(resall => {
-      var res = resall[0]
-      var featdims = resall[1]
+    return Results.then(allresults => {
+      let [res, featdims] = allresults
       var filtered = []
 
       res.forEach(m => {
@@ -87,8 +86,6 @@ function getMeasurements({tripID='', driverID='', feature='', pi='', tags=[], dr
       var req = `${config.apiUrl}/measurements?aggregator=[{"$lookup": { "from": "things", "localField": "relatedThings", "foreignField": "_id", "as": "thing_docs"}} ]`
     }
 
-  console.log(req)
-
     //Get all result pages (API pagination)
     function makeReq(page=1, measurements=[])
     {
@@ -113,7 +110,6 @@ function getMeasurements({tripID='', driverID='', feature='', pi='', tags=[], dr
       var featureDimensions = getFeatureDimensions(pi)
     else
       var featureDimensions = getFeatureDimensions(feature)
-    featureDimensions.then(res => {console.log(res)})
 
     return processRaw(makeReq(), featureDimensions)
 }

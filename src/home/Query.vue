@@ -92,7 +92,7 @@
     </div>
 
     <!-- Results Table and pagination -->
-    <b-table striped hover :items="result" :per-page="10" :current-page="currentPage" id="resultTable"></b-table>
+    <b-table responsive striped hover :fields="resultFields" :items="result" :per-page="10" :current-page="currentPage" id="resultTable"></b-table>
     <b-pagination v-model="currentPage" :total-rows="result.length" :per-page="10" aria-controls="resultTable" v-if="result.length>0"></b-pagination>
 
     {{result.length}} results retrieved
@@ -163,6 +163,15 @@ export default {
     },
     allInputData: function(){
       return this.query,this.tripID,this.driverID,this.feature,this.pi,this.selectedTags,this.driverTypology,this.driverMileageMin,this.driverMileageMax,this.driverYearsMin,this.driverYearsMax, Date.now()
+    },
+    resultFields: function(){
+      if (this.result.length>0)
+      {
+        var keys = Object.keys(this.result[0])
+        var fields = []
+        keys.forEach(k => {fields.push({key:k, label:k})})
+        return fields
+      }
     }
   },
   created: function(){
