@@ -174,7 +174,7 @@ export default {
       return this.tagRules.filter(r => r.element1 === this.feature).filter(r => this.scenarioTypes.includes(r.element2)).map(r => r.element2)
     },
     selectedTags: function(){
-      return [this.condition, this.roadType, this.scenarioType]
+      return [this.condition, this.roadType, this.scenarioType].filter(r=> r!='')
     },
     measurements: function(){
       return this.query === 'measurements'
