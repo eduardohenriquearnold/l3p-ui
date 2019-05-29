@@ -37,14 +37,29 @@
             <option v-for="f in constrainedFeatures">{{ f }}</option>
           </select>
         </div>
-
-    <div class="form-group col-md-12" v-if="measurements">
-      <label class="checkbox-inline">Conditions:</label>
-        <div v-for="t in constrainedTags" class="form-check form-check-inline">
-        <input class="form-check-input" type="checkbox" v-bind:id="t" v-bind:value="t" v-model="selectedTags">
-        <label class="form-check-label" v-bind:for="t">{{ t }}</label>
-        </div>
     </div>
+
+    <div class="form-row col-md-12" v-if="measurements">
+        <div class="form-group col-md-4" >
+            <label>Condition</label>
+            <select v-model="condition" class="custom-select" >
+              <option v-for="c in conditions">{{ c }}</option>
+            </select>
+        </div>
+
+        <div class="form-group col-md-4" >
+            <label>Road Type</label>
+            <select v-model="roadType" class="custom-select" >
+              <option v-for="r in roadTypes">{{ r }}</option>
+            </select>
+        </div>
+
+        <div class="form-group col-md-4" v-if="constrainedScenarioTypes.length>0" >
+            <label>Scenario Type</label>
+            <select v-model="scenarioType" class="custom-select" >
+              <option v-for="s in constrainedScenarioTypes">{{ s }}</option>
+            </select>
+        </div>
     </div>
 
     <div class="form-row col-md-12 align-items-end" v-if="measurements || drivers">
@@ -98,7 +113,6 @@
     <b-pagination v-model="currentPage" :total-rows="result.length" :per-page="10" aria-controls="resultTable" v-if="result.length>0"></b-pagination>
 
     {{result.length}} results retrieved
-
   </form>
 </div>
 </template>
@@ -120,8 +134,12 @@ export default {
       featureRules: [],
       feature: '',
       pi: '',
-      tags: [],
-      selectedTags: [],
+      condition: '',
+      conditions: [],
+      roadType: '',
+      roadTypes: [],
+      scenarioType: '',
+      scenarioTypes: [],
       tagRules: [],
       driverTypologies: [],
       driverTypology: '',
@@ -152,8 +170,11 @@ export default {
     constrainedFeatures: function() {
       return this.featureRules.filter(r => r.element1 === this.feature).map(r => r.element2)
     },
-    constrainedTags: function() {
-      return this.tagRules.filter(r => r.element1 === this.feature).map(r => r.element2)
+    constrainedScenarioTypes: function() {
+      return this.tagRules.filter(r => r.element1 === this.feature).filter(r => this.scenarioTypes.includes(r.element2)).map(r => r.element2)
+    },
+    selectedTags: function(){
+      return [this.condition, this.roadType, this.scenarioType]
     },
     measurements: function(){
       return this.query === 'measurements'
@@ -186,11 +207,13 @@ export default {
   },
   created: function(){
     //Load dynamic data from services
-    tagsService.getTags().then(tags => {this.tags = tags})
+    tagsService.getTags('conditionTag').then(res => {this.conditions = res})
+    tagsService.getTags('roadTypeTag').then(res => {this.roadTypes = res})
+    tagsService.getTags('scenarioTag').then(res => {this.scenarioTypes = res})
+    featuresService.getConstrainedTags().then(rules => {this.tagRules = rules})
     driversService.getTypologies().then(typologies => {this.driverTypologies = typologies})
     featuresService.getFeatures().then(features => {this.features = features})
     featuresService.getConstrainedFeatures().then(rules => {this.featureRules = rules})
-    featuresService.getConstrainedTags().then(rules => {this.tagRules = rules})
   },
   methods: {
     handleSubmit: function(){
