@@ -11,7 +11,7 @@
         </div>
 
         <div class="form-group col-md-4" v-if="constrainedFeatures.length>0">
-          <label>Performance Indicator</label>
+          <label>Scenario Type</label>
           <select v-model="pi" class="custom-select">
             <option v-for="f in constrainedFeatures">{{ f }}</option>
           </select>
@@ -163,7 +163,7 @@ export default {
     handleSubmit: function(){
       this.result = []
       this.loading = true 
-      measurementsService.getMeasurements({feature:this.feature, pi:this.pi, tags:this.selectedTags, driverTypology:this.driverTypology).then(res => {this.result = res; this.loading = false;})
+      measurementsService.getMeasurements({feature:this.feature, pi:this.pi, tags:this.selectedTags, driverTypology:this.driverTypology}).then(res => {this.result = res; this.loading = false;})
    }
   },
   watch: {
