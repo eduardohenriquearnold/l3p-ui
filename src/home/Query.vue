@@ -2,28 +2,19 @@
 <div>
   <form @submit.prevent="handleSubmit">
 
-      <div class="form-group col-md-4">
-      <label>Query on</label>
-      <select v-model="query" class="custom-select">
-        <option value="measurements">Measurements</option>
-        <option value="trips">Trips</option>
-        <option value="drivers">Drivers</option>
-      </select>
-    </div>
-
     <div class="form-row col-md-12">
-      <div class="form-group col-md-4" v-if="measurements || trips">
+      <div class="form-group col-md-4">
         <label>Trip ID</label>
         <input v-model="tripID" type="text" class="form-control here">
       </div>
 
-      <div class="form-group col-md-4" v-if="measurements || trips || drivers">
+      <div class="form-group col-md-4"> 
         <label>Driver ID</label>
         <input v-model="driverID" type="text" class="form-control here">
       </div>
     </div>
 
-    <div class="form-row col-md-12" v-if="measurements || trips">
+    <div class="form-row col-md-12">
         <div class="form-group col-md-4" >
             <label>Type</label>
             <select v-model="feature" class="custom-select" >
@@ -39,7 +30,7 @@
         </div>
     </div>
 
-    <div class="form-row col-md-12" v-if="measurements">
+    <div class="form-row col-md-12"> 
         <div class="form-group col-md-4" >
             <label>Condition</label>
             <select v-model="condition" class="custom-select" >
@@ -62,7 +53,7 @@
         </div>
     </div>
 
-    <div class="form-row col-md-12 align-items-end" v-if="measurements || drivers">
+    <div class="form-row col-md-12 align-items-end"> 
       <div class="form-group col-md-3">
         <label class="form-label-lg">Driver properties</label>
       </div>
@@ -127,7 +118,6 @@ export default {
   data: function ()
   {
     return {
-      query: '',
       tripID: '',
       driverID: '',
       features: [],
@@ -176,17 +166,8 @@ export default {
     selectedTags: function(){
       return [this.condition, this.roadType, this.scenarioType].filter(r=> r!='')
     },
-    measurements: function(){
-      return this.query === 'measurements'
-    },
-    drivers: function(){
-      return this.query === 'drivers'
-    },
-    trips: function(){
-      return this.query === 'trips'
-    },
     allInputData: function(){
-      return this.query,this.tripID,this.driverID,this.feature,this.pi,this.selectedTags,this.driverTypology,this.driverMileageMin,this.driverMileageMax,this.driverYearsMin,this.driverYearsMax, Date.now()
+      return this.tripID,this.driverID,this.feature,this.pi,this.selectedTags,this.driverTypology,this.driverMileageMin,this.driverMileageMax,this.driverYearsMin,this.driverYearsMax, Date.now()
     },
     resultFields: function(){
       if (this.result.length>0)
@@ -219,22 +200,8 @@ export default {
     handleSubmit: function(){
       this.result = []
       this.loading = true 
-
-      if (this.drivers)
-        driversService.getDriver({id:this.driverID, typology:this.driverTypology, mileageMin:this.driverMileageMin, mileageMax:this.driverMileageMax, yearsMin:this.driverYearsMin, yearsMax:this.driverYearsMax}).then(res => {this.result = res; this.loading = false})
-
-      if (this.measurements)
-        measurementsService.getMeasurements({tripID:this.tripID, driverID:this.driverID, feature:this.feature, pi:this.pi, tags:this.selectedTags, driverTypology:this.driverTypology, driverMileageMin:this.driverMileageMin, driverMileageMax:this.driverMileageMax, driverYearsMin:this.driverYearsMin, driverYearsMax:this.driverYearsMax}).then(res => {this.result = res; this.loading = false;})
-
-      if (this.trips)
-        measurementsService.getMeasurements({tripID:this.tripID, driverID:this.driverID, feature:this.feature, pi:this.pi})
-        .then(res => {
-          let ids = res.map(m => m.trip_ID)
-          let uniqueTrips = res.filter((v, i, a) => ids.indexOf(v.trip_ID) === i);
-          this.result = uniqueTrips
-          this.loading = false 
-        })
-    }
+      measurementsService.getMeasurements({tripID:this.tripID, driverID:this.driverID, feature:this.feature, pi:this.pi, tags:this.selectedTags, driverTypology:this.driverTypology, driverMileageMin:this.driverMileageMin, driverMileageMax:this.driverMileageMax, driverYearsMin:this.driverYearsMin, driverYearsMax:this.driverYearsMax}).then(res => {this.result = res; this.loading = false;})
+   }
   },
   watch: {
     allInputData: function(){
@@ -243,19 +210,6 @@ export default {
     feature: function(){
        this.pi= ''
     },
-    query: function(){
-      this.tripID = ''
-      this.driverID = ''
-      this.feature = ''
-      this.pi = ''
-      this.selectedTags = []
-      this.driverTypology = ''
-      this.driverMileageMin = ''
-      this.driverMileageMax = ''
-      this.driverYearsMin = ''
-      this.driverYearsMax = ''
-      this.ownership = false
-    }
-  }
+ }
 }
 </script>
