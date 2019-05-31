@@ -3,18 +3,6 @@
   <form @submit.prevent="handleSubmit">
 
     <div class="form-row col-md-12">
-      <div class="form-group col-md-4">
-        <label>Trip ID</label>
-        <input v-model="tripID" type="text" class="form-control here">
-      </div>
-
-      <div class="form-group col-md-4"> 
-        <label>Driver ID</label>
-        <input v-model="driverID" type="text" class="form-control here">
-      </div>
-    </div>
-
-    <div class="form-row col-md-12">
         <div class="form-group col-md-4" >
             <label>Type</label>
             <select v-model="feature" class="custom-select" >
@@ -55,33 +43,15 @@
 
     <div class="form-row col-md-12 align-items-end"> 
       <div class="form-group col-md-3">
-        <label class="form-label-lg">Driver properties</label>
+        <label class="form-label-lg">Metadata</label>
       </div>
 
       <div class="form-group col-md-3" >
-        <label  class="col-form-label">Typology</label>
+        <label  class="col-form-label">Driver Type</label>
           <select v-model="driverTypology" class="custom-select">
             <option ></option>
             <option v-for="t in driverTypologies">{{ t }}</option>
           </select>
-      </div>
-
-      <div class="form-group col-md-3">
-        <label>Mileage</label>
-        <div class="input-group">
-          <input v-model="driverMileageMin" type="text" class="form-control here" placeholder="min">
-          <span class="input-group-btn" style="width:0px;"></span>
-          <input v-model="driverMileageMax" type="text" class="form-control here" placeholder="max">
-        </div>
-      </div>
-
-      <div class="form-group col-md-3">
-        <label>Years</label>
-        <div class="input-group">
-          <input v-model="driverYearsMin" type="text" class="form-control here" placeholder="min">
-          <span class="input-group-btn" style="width:0px;"></span>
-          <input v-model="driverYearsMax" type="text" class="form-control here" placeholder="max">
-        </div>
       </div>
     </div>
 
@@ -118,8 +88,6 @@ export default {
   data: function ()
   {
     return {
-      tripID: '',
-      driverID: '',
       features: [],
       featureRules: [],
       feature: '',
@@ -133,11 +101,6 @@ export default {
       tagRules: [],
       driverTypologies: [],
       driverTypology: '',
-      driverMileageMin: '',
-      driverMileageMax: '',
-      driverYearsMin: '',
-      driverYearsMax: '',
-      ownership: false,
       result: [],
       currentPage: 1,
       loading: false
@@ -167,7 +130,7 @@ export default {
       return [this.condition, this.roadType, this.scenarioType].filter(r=> r!='')
     },
     allInputData: function(){
-      return this.tripID,this.driverID,this.feature,this.pi,this.selectedTags,this.driverTypology,this.driverMileageMin,this.driverMileageMax,this.driverYearsMin,this.driverYearsMax, Date.now()
+      return this.feature,this.pi,this.selectedTags,this.driverTypology,Date.now()
     },
     resultFields: function(){
       if (this.result.length>0)
@@ -200,7 +163,7 @@ export default {
     handleSubmit: function(){
       this.result = []
       this.loading = true 
-      measurementsService.getMeasurements({tripID:this.tripID, driverID:this.driverID, feature:this.feature, pi:this.pi, tags:this.selectedTags, driverTypology:this.driverTypology, driverMileageMin:this.driverMileageMin, driverMileageMax:this.driverMileageMax, driverYearsMin:this.driverYearsMin, driverYearsMax:this.driverYearsMax}).then(res => {this.result = res; this.loading = false;})
+      measurementsService.getMeasurements({feature:this.feature, pi:this.pi, tags:this.selectedTags, driverTypology:this.driverTypology).then(res => {this.result = res; this.loading = false;})
    }
   },
   watch: {
