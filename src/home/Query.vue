@@ -55,13 +55,6 @@
       </div>
     </div>
 
-    <div class="form-group col-md-6" v-if="false">
-      <div class="form-check">
-      <input class="form-check-input" type="checkbox" id="ownership" v-model="ownership">
-      <label class="form-check-label" for="ownership">Ownership</label>
-      </div>
-    </div>
-
     <div class="form-group col-md-12">
       <button type="submit" class="btn btn-primary">Submit</button>
       <ExportCSV :result="result" :selectedTags="selectedTags" :loading="loading"></ExportCSV>
