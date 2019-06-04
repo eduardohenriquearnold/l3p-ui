@@ -5,9 +5,9 @@ export const tagsService = {
     getTags
 };
 
-function getTags()
+function getTags(tagType)
 {
-  var query = `${config.apiUrl}/tags?filter={"tags.tagIDs":"measurementTag"}`
+  var query = `${config.apiUrl}/tags?filter={"tags.tagIDs":"${tagType}"}`
   
   function makeReq(page=1, results=[])
   {

@@ -2,28 +2,7 @@
 <div>
   <form @submit.prevent="handleSubmit">
 
-      <div class="form-group col-md-4">
-      <label>Query on</label>
-      <select v-model="query" class="custom-select">
-        <option value="measurements">Measurements</option>
-        <option value="trips">Trips</option>
-        <option value="drivers">Drivers</option>
-      </select>
-    </div>
-
     <div class="form-row col-md-12">
-      <div class="form-group col-md-4" v-if="measurements || trips">
-        <label>Trip ID</label>
-        <input v-model="tripID" type="text" class="form-control here">
-      </div>
-
-      <div class="form-group col-md-4" v-if="measurements || trips || drivers">
-        <label>Driver ID</label>
-        <input v-model="driverID" type="text" class="form-control here">
-      </div>
-    </div>
-
-    <div class="form-row col-md-12" v-if="measurements || trips">
         <div class="form-group col-md-4" >
             <label>Type</label>
             <select v-model="feature" class="custom-select" >
@@ -32,57 +11,47 @@
         </div>
 
         <div class="form-group col-md-4" v-if="constrainedFeatures.length>0">
-          <label>Performance Indicator</label>
+          <label>Scenario Type</label>
           <select v-model="pi" class="custom-select">
             <option v-for="f in constrainedFeatures">{{ f }}</option>
           </select>
         </div>
+    </div>
 
-    <div class="form-group col-md-12" v-if="measurements">
-      <label class="checkbox-inline">Conditions:</label>
-        <div v-for="t in constrainedTags" class="form-check form-check-inline">
-        <input class="form-check-input" type="checkbox" v-bind:id="t" v-bind:value="t" v-model="selectedTags">
-        <label class="form-check-label" v-bind:for="t">{{ t }}</label>
+    <div class="form-row col-md-12"> 
+        <div class="form-group col-md-4" >
+            <label>Condition</label>
+            <select v-model="condition" class="custom-select" >
+              <option v-for="c in conditions">{{ c }}</option>
+            </select>
+        </div>
+
+        <div class="form-group col-md-4" >
+            <label>Road Type</label>
+            <select v-model="roadType" class="custom-select" >
+              <option v-for="r in roadTypes">{{ r }}</option>
+            </select>
+        </div>
+
+        <div class="form-group col-md-4" v-if="constrainedScenarioTypes.length>0" >
+            <label>Scenario Type</label>
+            <select v-model="scenarioType" class="custom-select" >
+              <option v-for="s in constrainedScenarioTypes">{{ s }}</option>
+            </select>
         </div>
     </div>
-    </div>
 
-    <div class="form-row col-md-12 align-items-end" v-if="measurements || drivers">
+    <div class="form-row col-md-12 align-items-end"> 
       <div class="form-group col-md-3">
-        <label class="form-label-lg">Driver properties</label>
+        <label class="form-label-lg">Metadata</label>
       </div>
 
       <div class="form-group col-md-3" >
-        <label  class="col-form-label">Typology</label>
+        <label  class="col-form-label">Driver Type</label>
           <select v-model="driverTypology" class="custom-select">
             <option ></option>
             <option v-for="t in driverTypologies">{{ t }}</option>
           </select>
-      </div>
-
-      <div class="form-group col-md-3">
-        <label>Mileage</label>
-        <div class="input-group">
-          <input v-model="driverMileageMin" type="text" class="form-control here" placeholder="min">
-          <span class="input-group-btn" style="width:0px;"></span>
-          <input v-model="driverMileageMax" type="text" class="form-control here" placeholder="max">
-        </div>
-      </div>
-
-      <div class="form-group col-md-3">
-        <label>Years</label>
-        <div class="input-group">
-          <input v-model="driverYearsMin" type="text" class="form-control here" placeholder="min">
-          <span class="input-group-btn" style="width:0px;"></span>
-          <input v-model="driverYearsMax" type="text" class="form-control here" placeholder="max">
-        </div>
-      </div>
-    </div>
-
-    <div class="form-group col-md-6" v-if="false">
-      <div class="form-check">
-      <input class="form-check-input" type="checkbox" id="ownership" v-model="ownership">
-      <label class="form-check-label" for="ownership">Ownership</label>
       </div>
     </div>
 
@@ -98,7 +67,6 @@
     <b-pagination v-model="currentPage" :total-rows="result.length" :per-page="10" aria-controls="resultTable" v-if="result.length>0"></b-pagination>
 
     {{result.length}} results retrieved
-
   </form>
 </div>
 </template>
@@ -113,23 +81,19 @@ export default {
   data: function ()
   {
     return {
-      query: '',
-      tripID: '',
-      driverID: '',
       features: [],
       featureRules: [],
       feature: '',
       pi: '',
-      tags: [],
-      selectedTags: [],
+      condition: '',
+      conditions: [],
+      roadType: '',
+      roadTypes: [],
+      scenarioType: '',
+      scenarioTypes: [],
       tagRules: [],
       driverTypologies: [],
       driverTypology: '',
-      driverMileageMin: '',
-      driverMileageMax: '',
-      driverYearsMin: '',
-      driverYearsMax: '',
-      ownership: false,
       result: [],
       currentPage: 1,
       loading: false
@@ -152,20 +116,14 @@ export default {
     constrainedFeatures: function() {
       return this.featureRules.filter(r => r.element1 === this.feature).map(r => r.element2)
     },
-    constrainedTags: function() {
-      return this.tagRules.filter(r => r.element1 === this.feature).map(r => r.element2)
+    constrainedScenarioTypes: function() {
+      return this.tagRules.filter(r => r.element1 === this.feature).filter(r => this.scenarioTypes.includes(r.element2)).map(r => r.element2)
     },
-    measurements: function(){
-      return this.query === 'measurements'
-    },
-    drivers: function(){
-      return this.query === 'drivers'
-    },
-    trips: function(){
-      return this.query === 'trips'
+    selectedTags: function(){
+      return [this.condition, this.roadType, this.scenarioType].filter(r=> r!='')
     },
     allInputData: function(){
-      return this.query,this.tripID,this.driverID,this.feature,this.pi,this.selectedTags,this.driverTypology,this.driverMileageMin,this.driverMileageMax,this.driverYearsMin,this.driverYearsMax, Date.now()
+      return this.feature,this.pi,this.selectedTags,this.driverTypology,Date.now()
     },
     resultFields: function(){
       if (this.result.length>0)
@@ -186,32 +144,20 @@ export default {
   },
   created: function(){
     //Load dynamic data from services
-    tagsService.getTags().then(tags => {this.tags = tags})
+    tagsService.getTags('conditionTag').then(res => {this.conditions = res})
+    tagsService.getTags('roadTypeTag').then(res => {this.roadTypes = res})
+    tagsService.getTags('scenarioTag').then(res => {this.scenarioTypes = res})
+    featuresService.getConstrainedTags().then(rules => {this.tagRules = rules})
     driversService.getTypologies().then(typologies => {this.driverTypologies = typologies})
     featuresService.getFeatures().then(features => {this.features = features})
     featuresService.getConstrainedFeatures().then(rules => {this.featureRules = rules})
-    featuresService.getConstrainedTags().then(rules => {this.tagRules = rules})
   },
   methods: {
     handleSubmit: function(){
       this.result = []
       this.loading = true 
-
-      if (this.drivers)
-        driversService.getDriver({id:this.driverID, typology:this.driverTypology, mileageMin:this.driverMileageMin, mileageMax:this.driverMileageMax, yearsMin:this.driverYearsMin, yearsMax:this.driverYearsMax}).then(res => {this.result = res; this.loading = false})
-
-      if (this.measurements)
-        measurementsService.getMeasurements({tripID:this.tripID, driverID:this.driverID, feature:this.feature, pi:this.pi, tags:this.selectedTags, driverTypology:this.driverTypology, driverMileageMin:this.driverMileageMin, driverMileageMax:this.driverMileageMax, driverYearsMin:this.driverYearsMin, driverYearsMax:this.driverYearsMax}).then(res => {this.result = res; this.loading = false;})
-
-      if (this.trips)
-        measurementsService.getMeasurements({tripID:this.tripID, driverID:this.driverID, feature:this.feature, pi:this.pi})
-        .then(res => {
-          let ids = res.map(m => m.trip_ID)
-          let uniqueTrips = res.filter((v, i, a) => ids.indexOf(v.trip_ID) === i);
-          this.result = uniqueTrips
-          this.loading = false 
-        })
-    }
+      measurementsService.getMeasurements({feature:this.feature, pi:this.pi, tags:this.selectedTags, driverTypology:this.driverTypology}).then(res => {this.result = res; this.loading = false;})
+   }
   },
   watch: {
     allInputData: function(){
@@ -220,19 +166,6 @@ export default {
     feature: function(){
        this.pi= ''
     },
-    query: function(){
-      this.tripID = ''
-      this.driverID = ''
-      this.feature = ''
-      this.pi = ''
-      this.selectedTags = []
-      this.driverTypology = ''
-      this.driverMileageMin = ''
-      this.driverMileageMax = ''
-      this.driverYearsMin = ''
-      this.driverYearsMax = ''
-      this.ownership = false
-    }
-  }
+ }
 }
 </script>
