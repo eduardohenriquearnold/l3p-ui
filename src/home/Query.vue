@@ -164,7 +164,10 @@ export default {
       this.result = []
     },
     feature: function(){
-       this.pi= ''
+      this.pi= ''
+      this.condition = ''
+      this.roadType = ''
+      this.scenarioType = ''
     },
  }
 }
