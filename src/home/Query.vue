@@ -9,13 +9,6 @@
               <option v-for="f in highOrderFeatures">{{ f.id }}</option>
             </select>
         </div>
-
-        <div class="form-group col-md-4" v-if="constrainedFeatures.length>0">
-          <label>Scenario Type</label>
-          <select v-model="pi" class="custom-select">
-            <option v-for="f in constrainedFeatures">{{ f }}</option>
-          </select>
-        </div>
     </div>
 
     <div class="form-row col-md-12"> 
@@ -33,12 +26,19 @@
             </select>
         </div>
 
-        <div class="form-group col-md-4" v-if="constrainedScenarioTypes.length>0" >
+        <div class="form-group col-md-4" v-if="constrainedScenarioTypes.length>0 && constrainedFeatures.length==0" >
             <label>Scenario Type</label>
             <select v-model="scenarioType" class="custom-select" >
               <option v-for="s in constrainedScenarioTypes">{{ s }}</option>
             </select>
         </div>
+
+         <div class="form-group col-md-4" v-if="constrainedFeatures.length>0">
+          <label>Scenario Type</label>
+          <select v-model="pi" class="custom-select">
+            <option v-for="f in constrainedFeatures">{{ f }}</option>
+          </select>
+        </div>  
     </div>
 
     <div class="form-row col-md-12 align-items-end"> 
