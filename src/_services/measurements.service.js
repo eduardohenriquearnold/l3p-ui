@@ -32,12 +32,7 @@ function processRaw(res, featureDimensions){
       var filtered = []
 
       res.forEach(m => {
-        var data = {
-          'trip_ID': m.thing,
-          'measurement_ID': m._id,
-          'start_date': formatDate(m.startDate),
-          'end_date': formatDate(m.endDate),
-        }
+        var data = {}
 
         for (let [index, dim] of featdims.entries())
           data[dim.name] = m.values[0].value[index].join(',')
