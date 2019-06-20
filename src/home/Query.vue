@@ -120,7 +120,7 @@ export default {
       return this.tagRules.filter(r => r.element1 === this.feature).filter(r => this.scenarioTypes.includes(r.element2)).map(r => r.element2)
     },
     selectedTags: function(){
-      return [this.condition, this.roadType, this.scenarioType].filter(r=> r!='')
+      return [this.condition, this.roadType, this.scenarioType, this.pi].filter(r=> r!='')
     },
     allInputData: function(){
       return this.feature,this.pi,this.selectedTags,this.driverTypology,Date.now()
