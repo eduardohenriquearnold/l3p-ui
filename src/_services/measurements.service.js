@@ -62,8 +62,8 @@ function getMeasurements({tripID='', driverID='', feature='', pi='', tags=[], dr
   //Driver related
   if (driverID!='')
     query.push({"thing_docs._id":driverID})
-  if (driverTypology!='')
-    query.push({"thing_docs.metadata.type":driverTypology})
+  // if (driverTypology!='')
+    // query.push({"thing_docs.metadata.type":driverTypology})
   if (driverMileageMin != '')
     query.push({"thing_docs.metadata.mileage" : {"$gte" : driverMileageMin}})
   if (driverMileageMax != '')
@@ -106,5 +106,14 @@ function getMeasurements({tripID='', driverID='', feature='', pi='', tags=[], dr
     else
       var featureDimensions = getFeatureDimensions(feature)
 
-    return processRaw(makeReq(), featureDimensions)
+    //Filter driver type
+    var processed = processRaw(makeReq(), featureDimensions)
+    var filtered = processed.then(m => {
+      if (driverTypology != '')
+        return m.filter(meas => meas.Driver_Type == driverTypology)
+      else
+        return m
+    })
+
+    return filtered 
 }
