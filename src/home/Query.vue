@@ -50,7 +50,8 @@
         <label  class="col-form-label">Driver Type</label>
           <select v-model="driverTypology" class="custom-select">
             <option ></option>
-            <option v-for="t in driverTypologies">{{ t }}</option>
+            <option value="0" >Normal</option>
+            <option value="1" >Trained</option>
           </select>
       </div>
     </div>
@@ -148,7 +149,6 @@ export default {
     tagsService.getTags('roadTypeTag').then(res => {this.roadTypes = res})
     tagsService.getTags('scenarioTag').then(res => {this.scenarioTypes = res})
     featuresService.getConstrainedTags().then(rules => {this.tagRules = rules})
-    driversService.getTypologies().then(typologies => {this.driverTypologies = typologies})
     featuresService.getFeatures().then(features => {this.features = features})
     featuresService.getConstrainedFeatures().then(rules => {this.featureRules = rules})
   },
