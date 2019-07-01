@@ -2,7 +2,7 @@ import config from 'config';
 import axios from 'axios';
 
 export const featuresService = {
-    getFeatures, getConstrainedFeatures, getConstrainedTags
+    getFeatures, getConstrainedFeatures, getConstrainedTags, deleteThing
 };
 
 function getFeatures()
@@ -59,4 +59,21 @@ function getConstrainedFeatures(){
 
 function getConstrainedTags(){
   return getConstrained("Feature", "Tag")
+}
+
+function deleteThing({thing='', feature=''}){
+  var query = `${config.apiUrl}/measurements?filter={`
+  
+  if (feature == ''){
+    query = query + `"thing": "${thing}"}`
+  }else{
+    query = query + `"$and":[{"thing": "${thing}"}, {"feature":"${feature}"}]}`
+  }
+  console.log(query)
+  return axios.delete(query)
+  .catch(err => {
+  console.log(err)
+  })
+
+
 }
