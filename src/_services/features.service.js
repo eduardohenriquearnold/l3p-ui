@@ -71,9 +71,7 @@ function deleteThing({thing='', feature=''}){
   }
   console.log(query)
   return axios.delete(query)
-  .catch(err => {
-  console.log(err)
-  })
+  
 
 
 }
