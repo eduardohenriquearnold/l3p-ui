@@ -43,15 +43,16 @@ export default {
       thing:'',
       features: [],
       feature: '',
-      deleteStr:''
+      deleteStr:'',
+      successFlag: true
     }
   },
   computed: {
     messageBoxClass: function(){
       return {
         'alert': true,
-        'alert-success': true,
-        'alert-danger': false
+        'alert-success': this.successFlag,
+        'alert-danger': !this.successFlag
       }
     },
     featureOrder : function(){
@@ -76,8 +77,13 @@ export default {
     handleSubmit: function(){
       featuresService.deleteThing({thing:this.thing, feature:this.feature}).then(response => {
        console.log(response)
-       this.deleteStr = response.data.message 
-    })
+       this.deleteStr = response.data.message
+       this.successFlag = true 
+    }).catch(err => {
+      console.log(err.response.data)
+      this.deleteStr = err.response.data.message
+      this.successFlag = false
+  })
       //measurementsService.getMeasurements({feature:this.feature, pi:this.pi, tags:this.selectedTags, driverTypology:this.driverTypology}).then(res => {this.result = res; this.loading = false;})
    }
   },
