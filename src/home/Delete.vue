@@ -44,7 +44,9 @@ export default {
       features: [],
       feature: '',
       deleteStr:'',
-      successFlag: true
+      successFlag: true,
+      noTripFlag: false,
+      userNotAllowedFlag: false,
     }
   },
   computed: {
@@ -52,7 +54,8 @@ export default {
       return {
         'alert': true,
         'alert-success': this.successFlag,
-        'alert-danger': !this.successFlag
+        'alert-danger': this.noTripFlag,
+        'alert-warning': this.userNotAllowedFlag,
       }
     },
     featureOrder : function(){
@@ -79,10 +82,16 @@ export default {
        console.log(response)
        this.deleteStr = response.data.message
        this.successFlag = true 
+       this.noTripFlag = false
+       this.userNotAllowedFlag = false
     }).catch(err => {
       console.log(err.response.data)
       this.deleteStr = err.response.data.message
       this.successFlag = false
+      if (err.response.data.status == 403)
+        this.userNotAllowedFlag = true
+      else
+        this.noTripFlag = true
   })
       //measurementsService.getMeasurements({feature:this.feature, pi:this.pi, tags:this.selectedTags, driverTypology:this.driverTypology}).then(res => {this.result = res; this.loading = false;})
    }
