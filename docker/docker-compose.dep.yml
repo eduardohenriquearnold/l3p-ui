@@ -1,0 +1,22 @@
+version: "3.3"
+
+
+services: 
+  l3pilotUI:
+    build: 
+      context: ..
+      dockerfile: docker/Dockerfile.deploy
+    image: l3pilot/ui:deploy
+    depends_on:
+      - letsencrypt
+    restart: always
+  letsencrypt:
+    image: linuxserver/letsencrypt
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - ./config/letsencrypt:/config
+    environment:
+      - URL=l3p.atmosphere.tools
+      - VALIDATION=http
