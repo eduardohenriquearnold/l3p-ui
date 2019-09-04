@@ -7,15 +7,11 @@ services:
       context: ..
       dockerfile: docker/Dockerfile.deploy
     image: l3pilot/ui:deploy
-    ports:
-      - "8080:8080"
     depends_on:
       - letsencrypt
     restart: always
-    container_name: l3pui-nginx
   letsencrypt:
     image: linuxserver/letsencrypt
-    container_name: letsencrypt
     ports:
       - 80:80
       - 443:443
@@ -24,5 +20,3 @@ services:
     environment:
       - URL=l3p.atmosphere.tools
       - VALIDATION=http
-      - PUID=0
-      - PGID=0
