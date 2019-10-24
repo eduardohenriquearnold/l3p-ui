@@ -3,7 +3,7 @@ import axios from 'axios';
 import moment from 'moment'
 
 export const measurementsService = {
-    getMeasurements
+    getMeasurements,deleteThing
 };
 
 function getFeatureDimensions(feature)
@@ -116,4 +116,16 @@ function getMeasurements({tripID='', driverID='', feature='', pi='', tags=[], dr
     })
 
     return filtered 
+}
+
+function deleteThing({thing='', feature=''}){
+  var query = `${config.apiUrl}/measurements?filter={`
+  
+  if (feature == ''){
+    query = query + `"thing": "${thing}"}`
+  }else{
+    query = query + `"$and":[{"thing": "${thing}"}, {"feature":"${feature}"}]}`
+  }
+  console.log(query)
+  return axios.delete(query)
 }

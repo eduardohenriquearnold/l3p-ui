@@ -78,7 +78,7 @@ export default {
   },
   methods: {
     handleSubmit: function(){
-      featuresService.deleteThing({thing:this.thing, feature:this.feature}).then(response => {
+       measurementsService.deleteThing({thing:this.thing, feature:this.feature}).then(response => {
        console.log(response)
        this.deleteStr = response.data.message
        this.successFlag = true 
