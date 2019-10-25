@@ -4,9 +4,9 @@
 
     <div class="form-row col-md-12">
         <div class="form-group col-md-4" >
-            <label>Type</label>
+            <label>Query Type</label>
             <select v-model="type" class="custom-select" >
-              <option v-for="f in types">{{ f.id }}</option>
+              <option v-for="t in types">{{ t }}</option>
             </select>
         </div>
     </div>
@@ -33,7 +33,7 @@
             </select>
         </div>
  
-         <div class="form-group col-md-3">
+        <div class="form-group col-md-3" v-if="scenarioTypes.length>0">
           <label>Scenario Type</label>
           <select v-model="scenarioType" class="custom-select">
             <option v-for="st in scenarioTypes">{{ st }}</option>
@@ -90,7 +90,7 @@ export default {
       return this.type,this.selectedTags,this.driverType,Date.now()
     },
     scenarioTypes : function(){
-      return [] //Should implement based on constraints
+      return this.constraints.filter(c => c.element1 === this.type).map(c => c.element2)
     },
     resultFields: function(){
       if (this.result.length>0)
@@ -114,7 +114,7 @@ export default {
     tagsService.getTags('UI-Type').then(res => {this.types = res})
     tagsService.getTags('UI-Condition').then(res => {this.conditions = res})
     tagsService.getTags('UI-RoadType').then(res => {this.roadTypes = res})
-    tagsService.getTags('UI-DriverType').then(res => {this.driveTypes = res})
+    tagsService.getTags('UI-DriverType').then(res => {this.driverTypes = res})
     tagsService.getConstraints('UI-Type-ScenarioType').then(res => {this.constraints = res})
   },
   methods: {
@@ -122,7 +122,6 @@ export default {
       this.result = []
       this.loading = true 
       //measurementsService.getMeasurements({feature:this.feature, pi:this.pi, tags:this.selectedTags, driverTypology:this.driverTypology}).then(res => {this.result = res; this.loading = false;})
-      //REDO
    }
   },
   watch: {
@@ -132,7 +131,7 @@ export default {
     type : function(){
       this.condition = ''
       this.roadType = ''
-      this.scenarioType = ''
+      this.scenarioType = (this.scenarioTypes.length>0) ? this.scenarioTypes[0] : ''
     },
  }
 }

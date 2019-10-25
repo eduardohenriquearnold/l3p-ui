@@ -16,7 +16,7 @@ function getTags(tagType)
       var curResults = res.data.docs.map(it => it._id)
       results.push(...curResults)
 
-      if (page >= res.data.pages)
+      if (page >= res.data.totalPages)
       {
         results.sort()
         return results
@@ -34,7 +34,7 @@ function getTags(tagType)
 
 function getConstraints(tagType)
 {
-  var query = `${config.apiUrl}/constraints?filter=[{"type1":"${type1}", "type2":"${type2}", "relationship":"dependency"}]`
+  var query = `${config.apiUrl}/constraints?filter=[{"tags":"${tagType}"}]`
 
   function makeReq(page=1, results=[])
   {
@@ -43,7 +43,7 @@ function getConstraints(tagType)
       var curResults = res.data.docs.map(f => {return {element1: f.element1, element2: f.element2}})
       results.push(...curResults)
 
-      if (page >= res.data.pages)
+      if (page >= res.data.totalPages)
         return results
 
       return makeReq(page+1, results)
