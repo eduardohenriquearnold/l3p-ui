@@ -29,6 +29,7 @@
         <div class="form-group col-md-3" >
           <label>Driver Type</label>
             <select v-model="driverType" class="custom-select">
+                <option value="">Any</option>
                 <option v-for="dt in driverTypes">{{ dt }}</option>
             </select>
         </div>

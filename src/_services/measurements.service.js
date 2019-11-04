@@ -27,8 +27,6 @@ function processRaw(res, featureDimensions){
       let [res, featdims] = allresults
       var filtered = []
 
-      console.log(res)
-
       res.forEach(m => {
         var data = {}
 
@@ -47,15 +45,16 @@ function getMeasurements({type='', condition='', roadType='', driverType='', sce
 {
   var feature = (type=='Datapoint') ? scenarioType : type
   var tags = [condition, roadType,driverType]
-  var tags = [condition, roadType]
 
   //If not Trip_PI or Datapoint, tags should contain the ScenarioType (specification)
   if (!['Trip_PI','Datapoint'].includes(type))
     tags.push(scenarioType)
+
+  //Remove empty tags
+  tags = tags.filter(t => t!='')
   tags = JSON.stringify(tags)
     
   var req = `${config.apiUrl}/measurements?filter={"feature": "${feature}", "tags": {"$all": ${tags} }}`
-  console.log(req)
 
   //Get all result pages (API pagination)
   function makeReq(page=1, measurements=[])
@@ -90,6 +89,5 @@ function deleteThing({thing='', feature=''}){
   }else{
     query = query + `"$and":[{"thing": "${thing}"}, {"feature":"${feature}"}]}`
   }
-  console.log(query)
   return axios.delete(query)
 }
