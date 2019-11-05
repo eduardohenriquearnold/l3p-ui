@@ -14,8 +14,8 @@
         <div class="form-group col-md-4" >
             <label>Type</label>
             <select v-model="feature" class="custom-select" >
-              <option ></option>
-              <option v-for="f in highOrderFeatures">{{ f.id }}</option>
+              <option value="" >All</option>
+              <option v-for="f in features">{{ f }}</option>
             </select>
         </div> 
     </div>
@@ -33,7 +33,7 @@
 </template>
 
 <script>
-import { featuresService, measurementsService } from '../_services';
+import { tagsService, measurementsService } from '../_services';
 
 export default {
   name:'Delete',
@@ -58,27 +58,17 @@ export default {
         'alert-warning': this.userNotAllowedFlag,
       }
     },
-    featureOrder : function(){
-      var feat = this.features.filter(f => f.id === this.feature)
-      if (feat.length>0)
-        return feat[0].order
-      else
-        return 0
-    },
-    highOrderFeatures: function() {
-      return this.features.filter(f => f.order > 0)
-    },
     allInputData: function(){
       return this.feature, this.thing, Date.now()
     }
   },
   created: function(){
     //Load dynamic data from services
-    featuresService.getFeatures().then(features => {this.features = features})
+    tagsService.getTags('UI-Type').then(res => {this.features = res})
   },
   methods: {
     handleSubmit: function(){
-      featuresService.deleteThing({thing:this.thing, feature:this.feature}).then(response => {
+       measurementsService.deleteThing({thing:this.thing, feature:this.feature}).then(response => {
        console.log(response)
        this.deleteStr = response.data.message
        this.successFlag = true 
@@ -93,7 +83,6 @@ export default {
       else
         this.noTripFlag = true
   })
-      //measurementsService.getMeasurements({feature:this.feature, pi:this.pi, tags:this.selectedTags, driverTypology:this.driverTypology}).then(res => {this.result = res; this.loading = false;})
    }
   },
   watch: {

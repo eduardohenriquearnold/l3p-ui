@@ -4,56 +4,42 @@
 
     <div class="form-row col-md-12">
         <div class="form-group col-md-4" >
-            <label>Type</label>
-            <select v-model="feature" class="custom-select" >
-              <option v-for="f in highOrderFeatures">{{ f.id }}</option>
+            <label>Query Type</label>
+            <select v-model="type" class="custom-select" >
+              <option v-for="t in types">{{ t }}</option>
             </select>
         </div>
     </div>
 
     <div class="form-row col-md-12"> 
-        <div class="form-group col-md-4" >
+        <div class="form-group col-md-3" >
             <label>Condition</label>
             <select v-model="condition" class="custom-select" >
               <option v-for="c in conditions">{{ c }}</option>
             </select>
         </div>
 
-        <div class="form-group col-md-4" >
+        <div class="form-group col-md-3" >
             <label>Road Type</label>
             <select v-model="roadType" class="custom-select" >
               <option v-for="r in roadTypes">{{ r }}</option>
             </select>
         </div>
 
-        <div class="form-group col-md-4" v-if="constrainedScenarioTypes.length>0 && constrainedFeatures.length==0" >
-            <label>Scenario Type</label>
-            <select v-model="scenarioType" class="custom-select" >
-              <option v-for="s in constrainedScenarioTypes">{{ s }}</option>
+        <div class="form-group col-md-3" >
+          <label>Driver Type</label>
+            <select v-model="driverType" class="custom-select">
+                <option value="">Any</option>
+                <option v-for="dt in driverTypes">{{ dt }}</option>
             </select>
         </div>
-
-         <div class="form-group col-md-4" v-if="constrainedFeatures.length>0">
+ 
+        <div class="form-group col-md-3" v-if="scenarioTypes.length>0">
           <label>Scenario Type</label>
-          <select v-model="pi" class="custom-select">
-            <option v-for="f in constrainedFeatures">{{ f }}</option>
+          <select v-model="scenarioType" class="custom-select">
+            <option v-for="st in scenarioTypes">{{ st }}</option>
           </select>
         </div>  
-    </div>
-
-    <div class="form-row col-md-12 align-items-end"> 
-      <div class="form-group col-md-3">
-        <label class="form-label-lg">Metadata</label>
-      </div>
-
-      <div class="form-group col-md-3" >
-        <label  class="col-form-label">Driver Type</label>
-          <select v-model="driverTypology" class="custom-select">
-            <option ></option>
-            <option value="0" >Normal</option>
-            <option value="1" >Trained</option>
-          </select>
-      </div>
     </div>
 
     <div class="form-group col-md-12">
@@ -73,7 +59,7 @@
 </template>
 
 <script>
-import { featuresService, tagsService, driversService, measurementsService } from '../_services';
+import { tagsService, measurementsService } from '../_services';
 import ExportCSV from './Export_csv.vue'
 
 export default {
@@ -82,49 +68,30 @@ export default {
   data: function ()
   {
     return {
-      features: [],
-      featureRules: [],
-      feature: '',
-      pi: '',
+      type : '',
+      types: [],
       condition: '',
       conditions: [],
       roadType: '',
       roadTypes: [],
       scenarioType: '',
-      scenarioTypes: [],
-      tagRules: [],
-      driverTypologies: [],
-      driverTypology: '',
+      constraints: [],
+      driverType: '',
+      driverTypes: [],
       result: [],
       currentPage: 1,
       loading: false
     }
   },
   computed: {
-    featureOrder : function(){
-      var feat = this.features.filter(f => f.id === this.feature)
-      if (feat.length>0)
-        return feat[0].order
-      else
-        return 0
-    },
-    firstOrderFeatures: function() {
-      return this.features.filter(f => f.order === 0)
-    },
-    highOrderFeatures: function() {
-      return this.features.filter(f => f.order > 0)
-    },
-    constrainedFeatures: function() {
-      return this.featureRules.filter(r => r.element1 === this.feature).map(r => r.element2)
-    },
-    constrainedScenarioTypes: function() {
-      return this.tagRules.filter(r => r.element1 === this.feature).filter(r => this.scenarioTypes.includes(r.element2)).map(r => r.element2)
-    },
-    selectedTags: function(){
-      return [this.condition, this.roadType, this.scenarioType, this.pi].filter(r=> r!='')
+   selectedTags: function(){
+      return [this.condition, this.roadType, this.scenarioType].filter(r=> r!='')
     },
     allInputData: function(){
-      return this.feature,this.pi,this.selectedTags,this.driverTypology,Date.now()
+      return this.type,this.selectedTags,this.driverType,Date.now()
+    },
+    scenarioTypes : function(){
+      return this.constraints.filter(c => c.element1 === this.type).map(c => c.element2)
     },
     resultFields: function(){
       if (this.result.length>0)
@@ -145,29 +112,27 @@ export default {
   },
   created: function(){
     //Load dynamic data from services
-    tagsService.getTags('conditionTag').then(res => {this.conditions = res})
-    tagsService.getTags('roadTypeTag').then(res => {this.roadTypes = res})
-    tagsService.getTags('scenarioTag').then(res => {this.scenarioTypes = res})
-    featuresService.getConstrainedTags().then(rules => {this.tagRules = rules})
-    featuresService.getFeatures().then(features => {this.features = features})
-    featuresService.getConstrainedFeatures().then(rules => {this.featureRules = rules})
+    tagsService.getTags('UI-Type').then(res => {this.types = res})
+    tagsService.getTags('UI-Condition').then(res => {this.conditions = res})
+    tagsService.getTags('UI-RoadType').then(res => {this.roadTypes = res})
+    tagsService.getTags('UI-DriverType').then(res => {this.driverTypes = res})
+    tagsService.getConstraints('UI-Type-ScenarioType').then(res => {this.constraints = res})
   },
   methods: {
     handleSubmit: function(){
       this.result = []
       this.loading = true 
-      measurementsService.getMeasurements({feature:this.feature, pi:this.pi, tags:this.selectedTags, driverTypology:this.driverTypology}).then(res => {this.result = res; this.loading = false;})
+      measurementsService.getMeasurements({type:this.type, condition:this.condition, roadType:this.roadType, driverType:this.driverType, scenarioType:this.scenarioType}).then(res => {this.result = res; this.loading = false;})
    }
   },
   watch: {
     allInputData: function(){
       this.result = []
     },
-    feature: function(){
-      this.pi= ''
+    type : function(){
       this.condition = ''
       this.roadType = ''
-      this.scenarioType = ''
+      this.scenarioType = (this.scenarioTypes.length>0) ? this.scenarioTypes[0] : ''
     },
  }
 }

@@ -1,26 +1,22 @@
 import config from 'config';
 import axios from 'axios';
-import moment from 'moment'
 
 export const measurementsService = {
-    getMeasurements
+    getMeasurements,deleteThing
 };
 
+//Get List of names of dimensions of a given feature
 function getFeatureDimensions(feature)
 {
   var query = `${config.apiUrl}/features/${feature}`
   return axios.get(query).then(res => {
-    return res.data.dimensions
+    var dimensions = res.data.items.map(d => d.name)
+    return dimensions 
   })
   .catch(err => {
     console.log(err)  
   })
 }
-
-function formatDate(value){
-      if (value)
-        return moment(String(value)).format('DD/MM/YYYY hh:mm')
-  }
 
 function processRaw(res, featureDimensions){
     //Joint promise for both results and feat dimensions
@@ -34,8 +30,8 @@ function processRaw(res, featureDimensions){
       res.forEach(m => {
         var data = {}
 
-        for (let [index, dim] of featdims.entries())
-          data[dim.name] = m.values[0].value[index].join(',')
+        for (let [index, dimName] of featdims.entries())
+          data[dimName] = m.samples[0].values[index].join(',')
 
         filtered.push(data)
       })
@@ -45,75 +41,53 @@ function processRaw(res, featureDimensions){
     .catch(err => {console.log(err)})
 }
 
-function getMeasurements({tripID='', driverID='', feature='', pi='', tags=[], driverTypology='', driverMileageMin='', driverMileageMax='', driverYearsMin='', driverYearsMax=''})
+function getMeasurements({type='', condition='', roadType='', driverType='', scenarioType=''})
 {
-  let query = []
+  var feature = (type=='Datapoint') ? scenarioType : type
+  var tags = [condition, roadType,driverType]
 
-  //Measurements related
-  if (tripID!='')
-    query.push({'thing':tripID})
-  if (feature!='')
-    query.push({'feature':feature})
-  if (pi!='')
-      query.push({'baseFeatures': pi})
-  if (tags.length>0)
-    query.push({'tags': {"$size":tags.length, "$all":tags}})
+  //If not Trip_PI or Datapoint, tags should contain the ScenarioType (specification)
+  if (!['Trip_PI','Datapoint'].includes(type))
+    tags.push(scenarioType)
 
-  //Driver related
-  if (driverID!='')
-    query.push({"thing_docs._id":driverID})
-  // if (driverTypology!='')
-    // query.push({"thing_docs.metadata.type":driverTypology})
-  if (driverMileageMin != '')
-    query.push({"thing_docs.metadata.mileage" : {"$gte" : driverMileageMin}})
-  if (driverMileageMax != '')
-    query.push({"thing_docs.metadata.mileage" : {"$lte" : driverMileageMax}})
-  if (driverYearsMin != '')
-    query.push({"thing_docs.metadata.years" : {"$gte" : driverYearsMin}})
-  if (driverYearsMax != '')
-    query.push({"thing_docs.metadata.years" : {"$lte" : driverYearsMax}})
+  //Remove empty tags
+  tags = tags.filter(t => t!='')
+  tags = JSON.stringify(tags)
+    
+  var req = `${config.apiUrl}/measurements?filter={"feature": "${feature}", "tags": {"$all": ${tags} }}`
 
-  if (query.length>0)  {
-      query = JSON.stringify(query)
-      var req = `${config.apiUrl}/measurements?aggregator=[{"$lookup": { "from": "things", "localField": "relatedThings", "foreignField": "_id", "as": "thing_docs"}}, { "$match":{ "$and": ${query}}}]`
-    }
-    else {
-      var req = `${config.apiUrl}/measurements?aggregator=[{"$lookup": { "from": "things", "localField": "relatedThings", "foreignField": "_id", "as": "thing_docs"}} ]`
-    }
+  //Get all result pages (API pagination)
+  function makeReq(page=1, measurements=[])
+  {
+    return axios.get(req+`&page=${page}`)
+    .then(res => {
+      let data = res.data
+      var curMeasurements = data.docs
+      measurements.push(...curMeasurements)
 
-    //Get all result pages (API pagination)
-    function makeReq(page=1, measurements=[])
-    {
-      return axios.get(req+`&page=${page}`)
-      .then(res => {
-        let data = res.data
-        var curMeasurements = data.data
-        measurements.push(...curMeasurements)
+      if (page >= data.totalPages)
+        return measurements
 
-        if (page >= data.totalPages)
-          return measurements
-
-        return makeReq(page+1, measurements)
-       })
-      .catch(err => {
-        console.log(err)
-      })
-    }
-
-    //Get feature dimensions (feature service)
-    if (pi != '')
-      var featureDimensions = getFeatureDimensions(pi)
-    else
-      var featureDimensions = getFeatureDimensions(feature)
-
-    //Filter driver type
-    var processed = processRaw(makeReq(), featureDimensions)
-    var filtered = processed.then(m => {
-      if (driverTypology != '')
-        return m.filter(meas => meas.Driver_Type == driverTypology)
-      else
-        return m
+      return makeReq(page+1, measurements)
+     })
+    .catch(err => {
+      console.log(err)
     })
+  }
 
-    return filtered 
+  var featureDimensions = getFeatureDimensions(feature)
+
+  var results = processRaw(makeReq(), featureDimensions)
+  return results 
+}
+
+function deleteThing({thing='', feature=''}){
+  var query = `${config.apiUrl}/measurements?filter={`
+  
+  if (feature == ''){
+    query = query + `"thing": "${thing}"}`
+  }else{
+    query = query + `"$and":[{"thing": "${thing}"}, {"feature":"${feature}"}]}`
+  }
+  return axios.delete(query)
 }
