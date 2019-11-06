@@ -125,15 +125,9 @@ export default {
       this.result = []
       this.loading = true 
       measurementsService.getMeasurements({type:this.type, condition:this.condition, roadType:this.roadType, driverType:this.driverType, scenarioType:this.scenarioType})
-        .forEach((prom, idx, arr) => {
-          prom.then(res => this.result.push(...res))
-          //Done loading
-          if (!arr[idx+1])
-            this.loading = false
-        })
-        
-        
-        //.then(res => {this.result = res; this.loading = false;})
+        .then(promiseArray => promiseArray.forEach((prom, idx, arr) => {
+          prom.then(res => this.result.push(...res)).then(res => {if (!arr[idx+1]) this.loading = false})
+        }))
    }
   },
   watch: {

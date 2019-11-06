@@ -46,6 +46,7 @@ function getMeasurements({type='', condition='', roadType='', driverType='', sce
 {
   var feature = (type=='Datapoint') ? scenarioType : type
   var tags = [condition, roadType,driverType]
+  var limitRecords = 100 //Max num of records per API call
 
   //If not Trip_PI or Datapoint, tags should contain the ScenarioType (specification)
   if (!['Trip_PI','Datapoint'].includes(type))
@@ -57,34 +58,37 @@ function getMeasurements({type='', condition='', roadType='', driverType='', sce
   if (tags.length > 0)
   {
     tags = JSON.stringify(tags)
-    var req = `${config.apiUrl}/measurements?filter={"feature": "${feature}", "tags": {"$all": ${tags} }}`
+    tags = `, "tags": {"$all" : ${tags}}`
   }
   else
-    var req = `${config.apiUrl}/measurements?filter={"feature": "${feature}"}`
+    tags = ''
+  
+  var req = `${config.apiUrl}/measurements?filter={"feature": "${feature}" ${tags}}&limit=${limitRecords}`
 
   //Get dimensions name (column headers)
   var featureDimensions = getFeatureDimensions(feature)
 
   //Get results with pagination
-  var results = []
-  var page = 1
-  var totalPages = 1
-  while (page <= totalPages)
+  function getPage(page)
   {
     var curResults = axios.get(req+`&page=${page}`)
-    .then(res => {
-      totalPages = res.data.totalPages
-      console.log(totalPages)
-      var rawResults = res.data.docs
-      return rawResults
-    })
+    .then(res => res.data.docs)
     .then(raw => processRaw(raw, featureDimensions))
     .catch(err => {console.log(err)})
 
-    results.push(curResults)
-    console.log(`Page ${page}/${totalPages}`)
-    page++
+    return curResults
   }
+
+  //Get number of pages and request all of them in parallell
+  var results = axios.get(req)
+    .then(res => res.data.totalPages)
+    .then(tPages => {
+      var results = []
+      for (var p=1; p<=tPages; p++)
+        results.push(getPage(p))
+      return results
+    })
+    .catch(err => {console.log(err)})
 
   return results
 }
