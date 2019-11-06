@@ -52,9 +52,16 @@ function getMeasurements({type='', condition='', roadType='', driverType='', sce
 
   //Remove empty tags
   tags = tags.filter(t => t!='')
-  tags = JSON.stringify(tags)
     
-  var req = `${config.apiUrl}/measurements?filter={"feature": "${feature}", "tags": {"$all": ${tags} }}`
+  if (tags.length > 0)
+  {
+    tags = JSON.stringify(tags)
+    var req = `${config.apiUrl}/measurements?filter={"feature": "${feature}", "tags": {"$all": ${tags} }}`
+  }
+  else
+    var req = `${config.apiUrl}/measurements?filter={"feature": "${feature}"}`
+
+  console.log(req)
 
   //Get all result pages (API pagination)
   function makeReq(page=1, measurements=[])

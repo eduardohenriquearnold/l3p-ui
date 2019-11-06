@@ -15,6 +15,7 @@
         <div class="form-group col-md-3" >
             <label>Condition</label>
             <select v-model="condition" class="custom-select" >
+              <option value="">Any</option>
               <option v-for="c in conditions">{{ c }}</option>
             </select>
         </div>
@@ -22,6 +23,7 @@
         <div class="form-group col-md-3" >
             <label>Road Type</label>
             <select v-model="roadType" class="custom-select" >
+              <option value="">Any</option>
               <option v-for="r in roadTypes">{{ r }}</option>
             </select>
         </div>
