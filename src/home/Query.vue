@@ -2,8 +2,8 @@
 <div>
   <form @submit.prevent="handleSubmit">
 
-    <div class="form-row col-md-12">
-        <div class="form-group col-md-4" >
+    <div class="form-row col-md-10 offset-sm-1">
+        <div class="form-group col-md-3" >
             <label>Query Type</label>
             <select v-model="type" class="custom-select" >
               <option v-for="t in types">{{ t }}</option>
@@ -11,9 +11,9 @@
         </div>
     </div>
 
-    <div class="form-row col-md-12"> 
+    <div class="form-row col-md-10 offset-sm-1"> 
         <div class="form-group col-md-3" >
-            <label>Condition</label>
+           <label>Condition</label>
             <select v-model="condition" class="custom-select" >
               <option value="">Any</option>
               <option v-for="c in conditions">{{ c }}</option>
@@ -44,15 +44,18 @@
         </div>  
     </div>
 
-    <div class="form-group col-md-12">
-      <button type="submit" class="btn btn-primary">Submit</button>
+    <div class="form-group col-md-12 ">
+     <button type="submit" class="btn btn-primary">Submit</button>
       <ExportCSV :result="result" :selectedTags="selectedTags" :loading="loading"></ExportCSV>
     </div>
 
     <img v-show="loading" src="data:image/gif;base64,R0lGODlhEAAQAPIAAP///wAAAMLCwkJCQgAAAGJiYoKCgpKSkiH/C05FVFNDQVBFMi4wAwEAAAAh/hpDcmVhdGVkIHdpdGggYWpheGxvYWQuaW5mbwAh+QQJCgAAACwAAAAAEAAQAAADMwi63P4wyklrE2MIOggZnAdOmGYJRbExwroUmcG2LmDEwnHQLVsYOd2mBzkYDAdKa+dIAAAh+QQJCgAAACwAAAAAEAAQAAADNAi63P5OjCEgG4QMu7DmikRxQlFUYDEZIGBMRVsaqHwctXXf7WEYB4Ag1xjihkMZsiUkKhIAIfkECQoAAAAsAAAAABAAEAAAAzYIujIjK8pByJDMlFYvBoVjHA70GU7xSUJhmKtwHPAKzLO9HMaoKwJZ7Rf8AYPDDzKpZBqfvwQAIfkECQoAAAAsAAAAABAAEAAAAzMIumIlK8oyhpHsnFZfhYumCYUhDAQxRIdhHBGqRoKw0R8DYlJd8z0fMDgsGo/IpHI5TAAAIfkECQoAAAAsAAAAABAAEAAAAzIIunInK0rnZBTwGPNMgQwmdsNgXGJUlIWEuR5oWUIpz8pAEAMe6TwfwyYsGo/IpFKSAAAh+QQJCgAAACwAAAAAEAAQAAADMwi6IMKQORfjdOe82p4wGccc4CEuQradylesojEMBgsUc2G7sDX3lQGBMLAJibufbSlKAAAh+QQJCgAAACwAAAAAEAAQAAADMgi63P7wCRHZnFVdmgHu2nFwlWCI3WGc3TSWhUFGxTAUkGCbtgENBMJAEJsxgMLWzpEAACH5BAkKAAAALAAAAAAQABAAAAMyCLrc/jDKSatlQtScKdceCAjDII7HcQ4EMTCpyrCuUBjCYRgHVtqlAiB1YhiCnlsRkAAAOwAAAAAAAAAAAA==" />
 
     <!-- Results Table and pagination -->
-    <b-table responsive striped hover :fields="resultFields" :items="result" :per-page="10" :current-page="currentPage" id="resultTable"></b-table>
+    <b-table responsive striped hover :fields="resultFields" :items="result" :per-page="10" :current-page="currentPage" id="resultTable">
+      <!-- Optional default data cell scoped slot -->
+      
+    </b-table>
     <b-pagination v-model="currentPage" :total-rows="result.length" :per-page="10" aria-controls="resultTable" v-if="result.length>0"></b-pagination>
 
     {{result.length}} results retrieved
@@ -104,9 +107,9 @@ export default {
         keys.forEach(k => {
           var format = /[!@#$%^&*()+\-=\[\]{};':"\\|,.<>\/?]+/
           if (format.test(k))
-            fields.push({key:k, label:k})
+            fields.push({key:k, label:k.replace(/_/g, " "), formatter:'toSciNotation'})
           else
-            fields.push({key:k})
+            fields.push({key:k, formatter:'toSciNotation'})
         })
         return fields
       }
@@ -128,6 +131,17 @@ export default {
         .then(promiseArray => promiseArray.forEach((prom, idx, arr) => {
           prom.then(res => this.result.push(...res)).then(res => {if (!arr[idx+1]) this.loading = false})
         }))
+   },
+    toSciNotation: function(value){
+      var value_array = value.split().map(x => x.split(',').map(function(str_value, index) {
+        var number_value = Number(str_value)
+        if (number_value % 1 === 0)
+          return number_value
+        else
+          return number_value.toExponential(4)
+      }).join(', '))
+      
+      return value_array
    }
   },
   watch: {
