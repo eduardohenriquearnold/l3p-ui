@@ -41,6 +41,7 @@ function processRaw(res, featureDimensions){
     .catch(err => {console.log(err)})
 }
 
+//Returns array of promisses for each page of results
 function getMeasurements({type='', condition='', roadType='', driverType='', scenarioType=''})
 {
   var feature = (type=='Datapoint') ? scenarioType : type
@@ -61,31 +62,31 @@ function getMeasurements({type='', condition='', roadType='', driverType='', sce
   else
     var req = `${config.apiUrl}/measurements?filter={"feature": "${feature}"}`
 
-  console.log(req)
-
-  //Get all result pages (API pagination)
-  function makeReq(page=1, measurements=[])
-  {
-    return axios.get(req+`&page=${page}`)
-    .then(res => {
-      let data = res.data
-      var curMeasurements = data.docs
-      measurements.push(...curMeasurements)
-
-      if (page >= data.totalPages)
-        return measurements
-
-      return makeReq(page+1, measurements)
-     })
-    .catch(err => {
-      console.log(err)
-    })
-  }
-
+  //Get dimensions name (column headers)
   var featureDimensions = getFeatureDimensions(feature)
 
-  var results = processRaw(makeReq(), featureDimensions)
-  return results 
+  //Get results with pagination
+  var results = []
+  var page = 1
+  var totalPages = 1
+  while (page <= totalPages)
+  {
+    var curResults = axios.get(req+`&page=${page}`)
+    .then(res => {
+      totalPages = res.data.totalPages
+      console.log(totalPages)
+      var rawResults = res.data.docs
+      return rawResults
+    })
+    .then(raw => processRaw(raw, featureDimensions))
+    .catch(err => {console.log(err)})
+
+    results.push(curResults)
+    console.log(`Page ${page}/${totalPages}`)
+    page++
+  }
+
+  return results
 }
 
 function deleteThing({thing='', feature=''}){
