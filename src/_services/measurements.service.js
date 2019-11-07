@@ -46,7 +46,7 @@ function getMeasurements({type='', condition='', roadType='', driverType='', sce
 {
   var feature = (type=='Datapoint') ? scenarioType : type
   var tags = [condition, roadType,driverType]
-  var limitRecords = 500 //Max num of records per API call
+  var limitRecords = 100 //Max num of records per API call
 
   //If not Trip_PI or Datapoint, tags should contain the ScenarioType (specification)
   if (!['Trip_PI','Datapoint'].includes(type))

@@ -9,7 +9,7 @@ WORKDIR /app
 
 #Copy package requirements and install them
 COPY package.json ./
-RUN npm install 
+RUN npm install
 
 #Remove unnecessary files
 RUN apt-get autoremove -y \

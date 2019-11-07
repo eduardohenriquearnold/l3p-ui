@@ -10,7 +10,7 @@ WORKDIR /app
 
 #Copy app requirements and install required packages
 COPY . .
-RUN npm install 
+RUN npm install
 
 #Build dist
 RUN npm run build
