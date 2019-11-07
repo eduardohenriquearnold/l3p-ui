@@ -7,6 +7,7 @@ import Dash from '../home/Dash'
 import Welcome from '../home/Welcome'
 import Query from '../home/Query'
 import Delete from '../home/Delete'
+import Download from '../home/Download'
 
 Vue.use(Router);
 
@@ -16,6 +17,7 @@ export const router = new Router({
     { path: '/', component: Dash, children: [{path:'', component: Welcome}] },
     { path: '/query', component: Dash, children: [{path:'', component: Query}] },
     { path: '/delete', component: Dash, children: [{path:'', component: Delete}] },
+    { path: '/download', component: Dash, children: [{path:'', component: Download}] },
     { path: '/login', component: LoginPage },
 
     // otherwise redirect to home
