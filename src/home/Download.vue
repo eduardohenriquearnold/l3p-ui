@@ -23,6 +23,7 @@
 import { tagsService, measurementsService } from '../_services';
 import JSZip from 'jszip'
 import saveAs from 'file-saver'
+import Excel from 'exceljs'
 export default {
   name:'Download',
   data: function ()
@@ -33,11 +34,15 @@ export default {
       result: [],
       finishedLoading: true,
       downloading: false,
+      excelReady: true,
       currentType: -1,
-      currentScenario: 0,
-      type: [],
-      scenarioType: [],
-      zip: [],
+      currentScenario: -1,
+      type: '',
+      scenarioType: '',
+      workbook: [],
+      worksheets: [],
+      currentFilename : "",
+      zip:[],
     }
   },
   created: function(){
@@ -45,39 +50,49 @@ export default {
     tagsService.getTags('UI-Type').then(res => {this.types = res})
     tagsService.getSpecificConstraint('Datapoint','UI-Type-ScenarioType').then(res => {this.constraints = res})
   },
+  
 
   methods: {
     
     downloadNext: function(){
-      
-      if (this.types[this.currentType] == 'Datapoint') {
+      if (this.type == 'Datapoint' && this.currentScenario < this.constraints.length-1) {
         this.currentScenario = this.currentScenario + 1
-        if(this.currentScenario >= this.constraints.length)
-        {
-          this.currentScenario = 0
-          this.currentType = this.currentType + 1
-        }
       }
       else{
+        this.currentScenario = 0
         this.currentType = this.currentType + 1
-        
       }
-
+      
+      // If all files are downloaded
       if (this.currentType >= this.types.length){
-          this.currentType = -1
-          this.currrentScenario = 0
+          this.currentType = -1 // it is the default reset value
+          this.currrentScenario = -1 // it is the default reset value
           var filename = 'L3Pilot_all_measurements.zip'
           this.zip.generateAsync({type:"blob"})
           .then(function (blob) {
               saveAs(blob, filename)
               
-          }).then(res =>{this.downloading = false})
+          }).then(res =>{
+            // Reset everything
+            this.downloading = false
+            this.zip = []
+            this.workbook = []
+            this.worksheets = []
+            this.currentType = -1
+            this.currentScenario = -1
+            this.type = ''
+            this.scenarioType = ''
+            this.result = []
+            this.currentFilename = ''
+            })
 
       }
       else{
         this.getResult()
       }
     },
+    
+
     getResult: function(){
       this.type = this.types[this.currentType]
       if(this.type == 'Datapoint'){
@@ -86,60 +101,97 @@ export default {
         this.scenarioType = ''
       }
       this.result = []
-      this.finishedLoading = false 
+      this.finishedLoading = false
+      
       measurementsService.getMeasurements({type:this.type, scenarioType:this.scenarioType})
         .then(promiseArray => promiseArray.forEach((prom, idx, arr) => {
           prom.then(res => this.result.push(...res)).then(res => {if (!arr[idx+1]) this.finishedLoading = true})
         }))
-      
-      
-
-
-
     },
+
+
     toCSV: function(){
       const { Parser } = require('json2csv');
       var fields = Object.keys(this.result[0])
       const json2csvParser = new Parser({ fields });
       var csv = json2csvParser.parse(this.result);
-
       return csv
-
-
     },
+   
+    
     downloadCSV: function(){
-      var data, filename, link;
-      var csv = this.toCSV();
-      if (csv == null) return;
+      this.currentFilename = 'L3Pilot_all_measurements_' + this.type + '.xls'
       if (this.type == 'Datapoint')
       {
-        filename = 'L3Pilot_all_measurements_' + this.type + '_' + this.scenarioType + '.csv';
-      }else{
-        filename = 'L3Pilot_all_measurements_' + this.type + '.csv';
-      }
-      this.zip.file(filename, csv)
-    }
-    
-  },
-  watch: {
-    finishedLoading: function(val){
-      
-      if(val == true && this.downloading == true){
+        this.worksheets.push(this.workbook.addWorksheet(this.scenarioType))
         if (this.result.length !== 0)
         {
-          this.downloadCSV()
           
+          const fields = Object.keys(this.result[0])
+          var columns = new Array(fields.length)
+          for (var i=0; i<fields.length; i++)
+          {
+            columns[i] = {'header': fields[i], 'key': fields[i]}
+          }
+          this.worksheets[this.worksheets.length-1].columns = columns
+          this.worksheets[this.worksheets.length-1].columns.forEach(
+            column => {
+            column.width = column.header.length < 12 ? 12 : column.header.length
+            })
+          this.worksheets[this.worksheets.length-1].addRows(this.result)
+            
+        }
+        if (this.worksheets.length == this.constraints.length){
+          this.excelReady = false
+          this.workbook.xlsx.writeBuffer().then(data => {
+            var blob = new Blob([data], {type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"});
+            this.zip.file(this.currentFilename, blob, {binary: true})
+            this.excelReady = true
+          })
+          
+        }
+        else{
+          this.downloadNext()
+        }  
+      }
+      else
+      {
+        if (this.result.length !== 0)
+        {
+          const csv = this.toCSV();
+          this.zip.file(this.currentFilename, csv)
         }
         this.downloadNext()
       }
+      
+    }
+    
+  },
+
+
+  watch: {
+    finishedLoading: function(val){
+      // When data is loaded from server start download
+      if(val == true && this.downloading == true){
+        this.downloadCSV() 
+      }
     },
     downloading: function(val){
-      
+      // Start download if downloading become true
       if(val == true){
         this.zip = new JSZip()
+        this.workbook = new Excel.Workbook()
+        this.currentType = 0
+        this.currentScenario = 0
+        this.getResult()
+      }
+    },
+    excelReady: function(val){ 
+      if(val == true){
         this.downloadNext()
       }
     },
+
   },
 }
 
