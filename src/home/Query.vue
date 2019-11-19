@@ -157,6 +157,6 @@ export default {
 
 <style>
 .table td{
-  white-space: nowrap;
+  min-width: 100px; 
 }
 </style>
