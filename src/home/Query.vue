@@ -53,8 +53,6 @@
 
     <!-- Results Table and pagination -->
     <b-table responsive striped hover :fields="resultFields" :items="result" :per-page="10" :current-page="currentPage" id="resultTable">
-      <!-- Optional default data cell scoped slot -->
-      
     </b-table>
     <b-pagination v-model="currentPage" :total-rows="result.length" :per-page="10" aria-controls="resultTable" v-if="result.length>0"></b-pagination>
 
@@ -156,3 +154,9 @@ export default {
  }
 }
 </script>
+
+<style>
+.table td{
+  white-space: nowrap;
+}
+</style>
