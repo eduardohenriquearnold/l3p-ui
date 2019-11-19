@@ -2,13 +2,13 @@
 
 <div>
 
-  <form>
+  <form @submit.prevent="handleDownload">
   <div class="form-group col-md-12">
     Click bellow to download ".zip" file containing whole database. 
   
   </div>
   <div class="form-group col-md-12">
-    <button  class="btn btn-primary" v-on:click='downloading = true' :disabled='downloading == true'>Download</button> 
+    <button  class="btn btn-primary" type="submit" :disabled='downloading == true'>Download</button> 
   </div>
 
   <div class="form-group col-md-12" v-show="downloading">
@@ -49,11 +49,14 @@ export default {
     //Load dynamic data from services
     tagsService.getTags('UI-Type').then(res => {this.types = res})
     tagsService.getSpecificConstraint('Datapoint','UI-Type-ScenarioType').then(res => {this.constraints = res})
+    
   },
   
 
   methods: {
-    
+    handleDownload: function(){
+      this.downloading = true
+    },
     downloadNext: function(){
       if (this.type == 'Datapoint' && this.currentScenario < this.constraints.length-1) {
         this.currentScenario = this.currentScenario + 1
@@ -100,6 +103,7 @@ export default {
       }else{
         this.scenarioType = ''
       }
+      
       this.result = []
       this.finishedLoading = false
       
@@ -178,7 +182,9 @@ export default {
     },
     downloading: function(val){
       // Start download if downloading become true
+      
       if(val == true){
+        
         this.zip = new JSZip()
         this.workbook = new Excel.Workbook()
         this.currentType = 0
