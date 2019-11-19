@@ -20,3 +20,4 @@ services:
     environment:
       - URL=l3p.atmosphere.tools
       - VALIDATION=http
+    restart: always
