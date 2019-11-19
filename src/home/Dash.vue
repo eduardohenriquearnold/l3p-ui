@@ -1,7 +1,7 @@
 <template>
     <div>
         <navbar/>
-        <div class="jumbotron">
+        <div class="jumbotron lightbg">
           <div class="col-sm-12">
               <router-view></router-view>
           </div>
@@ -26,3 +26,13 @@ export default {
 
 };
 </script>
+
+<style>
+.lightbg {
+  background-color: rgb(244, 245, 247);
+}
+
+body{
+  color: #172b4d;
+}
+</style>
