@@ -66,7 +66,7 @@ import { tagsService, measurementsService } from '../_services';
 import ExportCSV from './Export_csv.vue'
 
 export default {
-  name:'Query',
+  name:'QueryVehicular',
   components: {ExportCSV},
   data: function ()
   {
