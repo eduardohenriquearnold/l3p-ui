@@ -24,7 +24,12 @@ function login(username, password) {
         })
         .catch(error => {
           logout();
-          return Promise.reject(error.response.data.message)
+          // network error
+          if (!error.response)
+            return Promise.reject("Network error: could not connect to the API")
+          else
+          //other error
+            return Promise.reject(error.response.data.message)
         });
 }
 
