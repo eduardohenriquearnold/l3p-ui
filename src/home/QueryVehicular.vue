@@ -115,7 +115,7 @@ export default {
   },
   created: function(){
     //Load dynamic data from services
-    tagsService.getTags('UI-Type').then(res => {this.types = res})
+    tagsService.getTags(['UI-Type','Vehicular-data']).then(res => {this.types = res})
     tagsService.getTags('UI-Condition').then(res => {this.conditions = res})
     tagsService.getTags('UI-RoadType').then(res => {this.roadTypes = res})
     tagsService.getTags('UI-DriverType').then(res => {this.driverTypes = res})
