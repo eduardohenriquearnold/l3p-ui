@@ -69,13 +69,20 @@ export default {
   methods: {
     handleSubmit: function(){
        measurementsService.deleteThing({thing:this.thing, feature:this.feature}).then(response => {
-       console.log(response)
-       this.deleteStr = response.data.message
+       //console.log(response)
+       if (this.feature == '')
+       {
+         this.deleteStr = ' All data with Trip ID \'' + this.thing + '\' are successfully deleted.' //response.data.message
+       }
+       else
+       {
+         this.deleteStr = ' All ' + this.feature + 's with Trip ID \'' + this.thing + '\' are successfully deleted.' //response.data.message
+       }
        this.successFlag = true 
        this.noTripFlag = false
        this.userNotAllowedFlag = false
     }).catch(err => {
-      console.log(err.response.data)
+      //console.log(err.response.data)
       this.deleteStr = err.response.data.message
       this.successFlag = false
       if (err.response.data.status == 403)
