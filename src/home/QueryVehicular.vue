@@ -50,6 +50,9 @@
     </div>
 
     <img v-show="loading" src="data:image/gif;base64,R0lGODlhEAAQAPIAAP///wAAAMLCwkJCQgAAAGJiYoKCgpKSkiH/C05FVFNDQVBFMi4wAwEAAAAh/hpDcmVhdGVkIHdpdGggYWpheGxvYWQuaW5mbwAh+QQJCgAAACwAAAAAEAAQAAADMwi63P4wyklrE2MIOggZnAdOmGYJRbExwroUmcG2LmDEwnHQLVsYOd2mBzkYDAdKa+dIAAAh+QQJCgAAACwAAAAAEAAQAAADNAi63P5OjCEgG4QMu7DmikRxQlFUYDEZIGBMRVsaqHwctXXf7WEYB4Ag1xjihkMZsiUkKhIAIfkECQoAAAAsAAAAABAAEAAAAzYIujIjK8pByJDMlFYvBoVjHA70GU7xSUJhmKtwHPAKzLO9HMaoKwJZ7Rf8AYPDDzKpZBqfvwQAIfkECQoAAAAsAAAAABAAEAAAAzMIumIlK8oyhpHsnFZfhYumCYUhDAQxRIdhHBGqRoKw0R8DYlJd8z0fMDgsGo/IpHI5TAAAIfkECQoAAAAsAAAAABAAEAAAAzIIunInK0rnZBTwGPNMgQwmdsNgXGJUlIWEuR5oWUIpz8pAEAMe6TwfwyYsGo/IpFKSAAAh+QQJCgAAACwAAAAAEAAQAAADMwi6IMKQORfjdOe82p4wGccc4CEuQradylesojEMBgsUc2G7sDX3lQGBMLAJibufbSlKAAAh+QQJCgAAACwAAAAAEAAQAAADMgi63P7wCRHZnFVdmgHu2nFwlWCI3WGc3TSWhUFGxTAUkGCbtgENBMJAEJsxgMLWzpEAACH5BAkKAAAALAAAAAAQABAAAAMyCLrc/jDKSatlQtScKdceCAjDII7HcQ4EMTCpyrCuUBjCYRgHVtqlAiB1YhiCnlsRkAAAOwAAAAAAAAAAAA==" />
+    <div class="form-group col-md-6" v-show="loading">
+    <b-progress :value="progressPercent" :max="progressMax" animated></b-progress>
+    </div> 
 
     <!-- Results Table and pagination -->
     <b-table responsive striped hover :fields="resultFields" :items="result" :per-page="10" :current-page="currentPage" id="resultTable">
@@ -83,7 +86,9 @@ export default {
       driverTypes: [],
       result: [],
       currentPage: 1,
-      loading: false
+      loading: false,
+      progressPercent: 0,
+      progressMax: 1
     }
   },
   computed: {
@@ -125,9 +130,12 @@ export default {
     handleSubmit: function(){
       this.result = []
       this.loading = true 
+      this.progressPercent = 0
       measurementsService.getMeasurements({type:this.type, condition:this.condition, roadType:this.roadType, driverType:this.driverType, scenarioType:this.scenarioType})
         .then(promiseArray => promiseArray.forEach((prom, idx, arr) => {
-          prom.then(res => this.result.push(...res)).then(res => {if (!arr[idx+1]) this.loading = false})
+          this.progressMax = arr.length
+          prom.then(res => {this.result.push(...res); this.progressPercent += 1})
+              .then(res => {if (!arr[idx+1]) this.loading = false})
         }))
    },
     toSciNotation: function(value){
