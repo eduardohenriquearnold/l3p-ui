@@ -5,9 +5,12 @@ export const tagsService = {
     getTags, getConstraints, getSpecificConstraint
 };
 
+//Allows a single string as tagType ("UI-RoadType") or a list of tags ([ "measurement","UI-RoadType"])
 function getTags(tagType)
 {
-  var query = `${config.apiUrl}/tags?filter={"tags":"${tagType}"}`
+  var tagType = JSON.stringify(tagType)
+  var query = `${config.apiUrl}/tags?filter={"tags": ${tagType}}`
+  console.log(query)
   
   function makeReq(page=1, results=[])
   {

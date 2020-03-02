@@ -11,39 +11,6 @@
         </div>
     </div>
 
-    <div class="form-row col-md-10 offset-sm-1"> 
-        <div class="form-group col-md-3" >
-           <label>Condition</label>
-            <select v-model="condition" class="custom-select" >
-              <option value="">Any</option>
-              <option v-for="c in conditions">{{ c }}</option>
-            </select>
-        </div>
-
-        <div class="form-group col-md-3" >
-            <label>Road Type</label>
-            <select v-model="roadType" class="custom-select" >
-              <option value="">Any</option>
-              <option v-for="r in roadTypes">{{ r }}</option>
-            </select>
-        </div>
-
-        <div class="form-group col-md-3" >
-          <label>Driver Type</label>
-            <select v-model="driverType" class="custom-select">
-                <option value="">Any</option>
-                <option v-for="dt in driverTypes">{{ dt }}</option>
-            </select>
-        </div>
- 
-        <div class="form-group col-md-3" v-if="scenarioTypes.length>0">
-          <label>Scenario Type</label>
-          <select v-model="scenarioType" class="custom-select">
-            <option v-for="st in scenarioTypes">{{ st }}</option>
-          </select>
-        </div>  
-    </div>
-
     <div class="form-group col-md-12 ">
      <button type="submit" class="btn btn-primary">Submit</button>
       <ExportCSV :result="result" :selectedTags="selectedTags" :loading="loading"></ExportCSV>
@@ -66,7 +33,7 @@ import { tagsService, measurementsService } from '../_services';
 import ExportCSV from './Export_csv.vue'
 
 export default {
-  name:'Query',
+  name:'QuerySubjective',
   components: {ExportCSV},
   data: function ()
   {
@@ -115,7 +82,7 @@ export default {
   },
   created: function(){
     //Load dynamic data from services
-    tagsService.getTags('UI-Type').then(res => {this.types = res})
+    tagsService.getTags(['Subjective-data','UI-Type']).then(res => {this.types = res})
     tagsService.getTags('UI-Condition').then(res => {this.conditions = res})
     tagsService.getTags('UI-RoadType').then(res => {this.roadTypes = res})
     tagsService.getTags('UI-DriverType').then(res => {this.driverTypes = res})
