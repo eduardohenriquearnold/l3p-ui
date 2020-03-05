@@ -11,45 +11,16 @@
         </div>
     </div>
 
-    <div class="form-row col-md-10 offset-sm-1"> 
-        <div class="form-group col-md-3" >
-           <label>Condition</label>
-            <select v-model="condition" class="custom-select" >
-              <option value="">Any</option>
-              <option v-for="c in conditions">{{ c }}</option>
-            </select>
-        </div>
-
-        <div class="form-group col-md-3" >
-            <label>Road Type</label>
-            <select v-model="roadType" class="custom-select" >
-              <option value="">Any</option>
-              <option v-for="r in roadTypes">{{ r }}</option>
-            </select>
-        </div>
-
-        <div class="form-group col-md-3" >
-          <label>Driver Type</label>
-            <select v-model="driverType" class="custom-select">
-                <option value="">Any</option>
-                <option v-for="dt in driverTypes">{{ dt }}</option>
-            </select>
-        </div>
- 
-        <div class="form-group col-md-3" v-if="scenarioTypes.length>0">
-          <label>Scenario Type</label>
-          <select v-model="scenarioType" class="custom-select">
-            <option v-for="st in scenarioTypes">{{ st }}</option>
-          </select>
-        </div>  
-    </div>
-
     <div class="form-group col-md-12 ">
      <button type="submit" class="btn btn-primary">Submit</button>
       <ExportCSV :result="result" :selectedTags="selectedTags" :loading="loading"></ExportCSV>
     </div>
 
     <img v-show="loading" src="data:image/gif;base64,R0lGODlhEAAQAPIAAP///wAAAMLCwkJCQgAAAGJiYoKCgpKSkiH/C05FVFNDQVBFMi4wAwEAAAAh/hpDcmVhdGVkIHdpdGggYWpheGxvYWQuaW5mbwAh+QQJCgAAACwAAAAAEAAQAAADMwi63P4wyklrE2MIOggZnAdOmGYJRbExwroUmcG2LmDEwnHQLVsYOd2mBzkYDAdKa+dIAAAh+QQJCgAAACwAAAAAEAAQAAADNAi63P5OjCEgG4QMu7DmikRxQlFUYDEZIGBMRVsaqHwctXXf7WEYB4Ag1xjihkMZsiUkKhIAIfkECQoAAAAsAAAAABAAEAAAAzYIujIjK8pByJDMlFYvBoVjHA70GU7xSUJhmKtwHPAKzLO9HMaoKwJZ7Rf8AYPDDzKpZBqfvwQAIfkECQoAAAAsAAAAABAAEAAAAzMIumIlK8oyhpHsnFZfhYumCYUhDAQxRIdhHBGqRoKw0R8DYlJd8z0fMDgsGo/IpHI5TAAAIfkECQoAAAAsAAAAABAAEAAAAzIIunInK0rnZBTwGPNMgQwmdsNgXGJUlIWEuR5oWUIpz8pAEAMe6TwfwyYsGo/IpFKSAAAh+QQJCgAAACwAAAAAEAAQAAADMwi6IMKQORfjdOe82p4wGccc4CEuQradylesojEMBgsUc2G7sDX3lQGBMLAJibufbSlKAAAh+QQJCgAAACwAAAAAEAAQAAADMgi63P7wCRHZnFVdmgHu2nFwlWCI3WGc3TSWhUFGxTAUkGCbtgENBMJAEJsxgMLWzpEAACH5BAkKAAAALAAAAAAQABAAAAMyCLrc/jDKSatlQtScKdceCAjDII7HcQ4EMTCpyrCuUBjCYRgHVtqlAiB1YhiCnlsRkAAAOwAAAAAAAAAAAA==" />
+    <div class="form-group col-md-6" v-show="loading">
+    <b-progress :value="progressPercent" :max="progressMax" animated></b-progress>
+    </div> 
+
 
     <!-- Results Table and pagination -->
     <b-table responsive striped hover :fields="resultFields" :items="result" :per-page="10" :current-page="currentPage" id="resultTable">
@@ -66,7 +37,7 @@ import { tagsService, measurementsService } from '../_services';
 import ExportCSV from './Export_csv.vue'
 
 export default {
-  name:'Query',
+  name:'QuerySubjective',
   components: {ExportCSV},
   data: function ()
   {
@@ -83,7 +54,9 @@ export default {
       driverTypes: [],
       result: [],
       currentPage: 1,
-      loading: false
+      loading: false,
+      progressPercent: 0,
+      progressMax: 1
     }
   },
   computed: {
@@ -115,7 +88,7 @@ export default {
   },
   created: function(){
     //Load dynamic data from services
-    tagsService.getTags('UI-Type').then(res => {this.types = res})
+    tagsService.getTags(['Subjective-data','UI-Type']).then(res => {this.types = res})
     tagsService.getTags('UI-Condition').then(res => {this.conditions = res})
     tagsService.getTags('UI-RoadType').then(res => {this.roadTypes = res})
     tagsService.getTags('UI-DriverType').then(res => {this.driverTypes = res})
@@ -125,9 +98,12 @@ export default {
     handleSubmit: function(){
       this.result = []
       this.loading = true 
+      this.progressPercent = 0
       measurementsService.getMeasurements({type:this.type, condition:this.condition, roadType:this.roadType, driverType:this.driverType, scenarioType:this.scenarioType})
         .then(promiseArray => promiseArray.forEach((prom, idx, arr) => {
-          prom.then(res => this.result.push(...res)).then(res => {if (!arr[idx+1]) this.loading = false})
+          this.progressMax = arr.length
+          prom.then(res => {this.result.push(...res); this.progressPercent += 1})
+              .then(res => {if (!arr[idx+1]) this.loading = false})
         }))
    },
     toSciNotation: function(value){

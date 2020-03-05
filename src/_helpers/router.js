@@ -5,7 +5,8 @@ import LoginPage from '../login/LoginPage'
 import Dash from '../home/Dash'
 
 import Welcome from '../home/Welcome'
-import Query from '../home/Query'
+import QueryVehicular from '../home/QueryVehicular'
+import QuerySubjective from '../home/QuerySubjective'
 import Delete from '../home/Delete'
 import Download from '../home/Download'
 
@@ -15,7 +16,8 @@ export const router = new Router({
   mode: 'history',
   routes: [
     { path: '/', component: Dash, children: [{path:'', component: Welcome}] },
-    { path: '/query', component: Dash, children: [{path:'', component: Query}] },
+    { path: '/queryVehicular', component: Dash, children: [{path:'', component: QueryVehicular}] },
+    { path: '/querySubjective', component: Dash, children: [{path:'', component: QuerySubjective}] },
     { path: '/delete', component: Dash, children: [{path:'', component: Delete}] },
     { path: '/download', component: Dash, children: [{path:'', component: Download}] },
     { path: '/login', component: LoginPage },
