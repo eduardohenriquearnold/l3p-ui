@@ -42,7 +42,7 @@ function processRaw(res, featureDimensions){
 }
 
 //Returns array of promisses for each page of results
-function getMeasurements({type='', condition='', roadType='', driverType='', scenarioType=''})
+function getMeasurements({type='', condition='', roadType='', driverType='', scenarioType='', accept=''})
 {
   var feature = (type=='Datapoint') ? scenarioType : type
   var tags = [condition, roadType,driverType]
@@ -71,7 +71,11 @@ function getMeasurements({type='', condition='', roadType='', driverType='', sce
   //Get results with pagination
   function getPage(page)
   {
-    var curResults = axios.get(req+`&page=${page}`)
+    var curResults = axios.get(req+`&page=${page}`,{
+      headers:{
+        'Accept': '${accept}'
+      }
+    })
     .then(res => res.data.docs)
     .then(raw => processRaw(raw, featureDimensions))
     .catch(err => {console.log(err)})
