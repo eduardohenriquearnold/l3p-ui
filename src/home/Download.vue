@@ -119,8 +119,9 @@ export default {
       this.result = []
       this.finishedLoading = false
       
-      measurementsService.getMeasurements({type:this.type, scenarioType:this.scenarioType, accept:'text/csv'})
-        .then(promiseArray => promiseArray.forEach((prom, idx, arr) => {
+      measurementsService.getMeasurementsCSV({type:this.type, scenarioType:this.scenarioType})
+        .then(
+          promiseArray => promiseArray.forEach((prom, idx, arr) => {
           prom.then(res => this.result.push(...res)).then(res => {if (!arr[idx+1]) this.finishedLoading = true})
         }))
     },
