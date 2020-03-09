@@ -134,7 +134,7 @@ export default {
       measurementsService.getMeasurements({type:this.type, condition:this.condition, roadType:this.roadType, driverType:this.driverType, scenarioType:this.scenarioType})
         .then(promiseArray => promiseArray.forEach((prom, idx, arr) => {
           this.progressMax = arr.length
-          prom.then(res => {this.result.push(...res); this.progressPercent += 1})
+          prom.then(res => {this.result.push(...res); console.log('done');this.progressPercent += 1})
               .then(res => {if (!arr[idx+1]) this.loading = false})
         }))
    },

@@ -2,7 +2,7 @@ import config from 'config';
 import axios from 'axios';
 
 export const measurementsService = {
-    getMeasurements, deleteThing, getMeasurementsCSV
+    getMeasurements, deleteThing, getMeasurementsCSV, getFeatureDimensionsCSV
 };
 
 //Get List of names of dimensions of a given feature
@@ -18,6 +18,19 @@ function getFeatureDimensions(feature)
   })
 }
 
+//Get List of names of dimensions of a given feature
+function getFeatureDimensionsCSV(type='', scenarioType='')
+{
+  var feature = (type=='Datapoint') ? scenarioType : type
+  var query = `${config.apiUrl}/features/${feature}`
+  return axios.get(query).then(res => {
+    var dimensions = res.data.items.map(d => d.name)
+    return dimensions
+  })
+  .catch(err => {
+    console.log(err)  
+  })
+}
 
 
 function processRaw(res, featureDimensions){
@@ -28,7 +41,6 @@ function processRaw(res, featureDimensions){
     return Results.then(allresults => {
       let [res, featdims] = allresults
       var filtered = []
-      console.log(res)
       res.forEach(m => {
         var data = {}
 
@@ -102,7 +114,6 @@ function getMeasurementsCSV({type='', condition='', roadType='', driverType='', 
   var feature = (type=='Datapoint') ? scenarioType : type
   var tags = [condition, roadType,driverType]
   var limitRecords = 100 //Max num of records per API call
-  console.log('CSV')
   //If not Trip_PI or Datapoint, tags should contain the ScenarioType (specification)
   if (!['Trip_PI','Datapoint'].includes(type))
     tags.push(scenarioType)
@@ -130,8 +141,8 @@ function getMeasurementsCSV({type='', condition='', roadType='', driverType='', 
       headers:{
         'Accept': 'text/csv'
       }
-    }).catch(err => {console.log(err)})
-    console.log(curResults)
+    }).then(res =>res.data)
+      .catch(err => {console.log(err)})
     return curResults
   }
 
@@ -142,15 +153,10 @@ function getMeasurementsCSV({type='', condition='', roadType='', driverType='', 
     .then(resultsCount => Math.ceil(resultsCount/limitRecords))
     .then(tPages =>{
       var results = []
-      
-      if (tPages == 0)
-      {
-        console.log('result')
-        return results
-      }
-      
       for (var p=1; p<=tPages; p++)
+      {
         results.push(getPage(p))
+      }
       return results
     })
     .catch(err => {console.log(err)})
