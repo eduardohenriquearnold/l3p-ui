@@ -2,7 +2,7 @@ import config from 'config';
 import axios from 'axios';
 
 export const measurementsService = {
-    getMeasurements,deleteThing
+    getMeasurements, deleteThing, getMeasurementsCSV, getFeatureDimensionsCSV
 };
 
 //Get List of names of dimensions of a given feature
@@ -18,6 +18,21 @@ function getFeatureDimensions(feature)
   })
 }
 
+//Get List of names of dimensions of a given feature
+function getFeatureDimensionsCSV(type='', scenarioType='')
+{
+  var feature = (type=='Datapoint') ? scenarioType : type
+  var query = `${config.apiUrl}/features/${feature}`
+  return axios.get(query).then(res => {
+    var dimensions = res.data.items.map(d => d.name)
+    return dimensions
+  })
+  .catch(err => {
+    console.log(err)  
+  })
+}
+
+
 function processRaw(res, featureDimensions){
     //Joint promise for both results and feat dimensions
     var Results = Promise.all([res, featureDimensions])
@@ -26,7 +41,6 @@ function processRaw(res, featureDimensions){
     return Results.then(allresults => {
       let [res, featdims] = allresults
       var filtered = []
-
       res.forEach(m => {
         var data = {}
 
@@ -89,6 +103,67 @@ function getMeasurements({type='', condition='', roadType='', driverType='', sce
       return results
     })
     .catch(err => {console.log(err)})
+
+  return results
+}
+
+
+
+function getMeasurementsCSV({type='', condition='', roadType='', driverType='', scenarioType=''})
+{
+  var feature = (type=='Datapoint') ? scenarioType : type
+  var tags = [condition, roadType,driverType]
+  var limitRecords = 100 //Max num of records per API call
+  //If not Trip_PI or Datapoint, tags should contain the ScenarioType (specification)
+  if (!['Trip_PI','Datapoint'].includes(type))
+    tags.push(scenarioType)
+
+  //Remove empty tags
+  tags = tags.filter(t => t!='')
+    
+  if (tags.length > 0)
+  {
+    tags = JSON.stringify(tags)
+    tags = `, "tags": {"$all" : ${tags}}`
+  }
+  else
+    tags = ''
+  
+  var req = `${config.apiUrl}/measurements?filter={"feature": "${feature}" ${tags}}&limit=${limitRecords}`
+
+  //Get dimensions name (column headers)
+  var featureDimensions = getFeatureDimensions(feature)
+
+  //Get results with pagination
+  function getPage(page)
+  {
+    var curResults = axios.get(req+`&page=${page}`,{
+      headers:{
+        'Accept': 'text/csv'
+      }
+    }).then(res =>res.data)
+      .catch(err => {console.log(err)})
+    return curResults
+  }
+
+  //Get number of pages and request all of them in parallell
+  var countReq = `${config.apiUrl}/measurements/count?filter={"feature": "${feature}" ${tags}}`
+  var results = axios.get(countReq)
+    .then(res => Number(res.data.size))
+    .then(resultsCount => {
+      //console.log(countReq)
+      //console.log(resultsCount)
+      return Math.ceil(resultsCount/limitRecords)})
+    .then(tPages =>{
+      var results = []
+      for (var p=1; p<=tPages; p++)
+      {
+        results.push(getPage(p))
+      }
+      return results
+    })
+    .catch(err => {console.log(err)})
+  
 
   return results
 }

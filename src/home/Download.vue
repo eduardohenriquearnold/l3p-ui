@@ -35,7 +35,8 @@ export default {
       progressMax: 100,
       types: [],
       constraints: [],
-      result: [],
+      result: '',
+      featureDimensions: [],
       finishedLoading: true,
       downloading: false,
       excelReady: true,
@@ -97,7 +98,8 @@ export default {
             this.currentScenario = -1
             this.type = ''
             this.scenarioType = ''
-            this.result = []
+            this.result = ''
+            this.featureDimensions = []
             this.currentFilename = ''
             })
 
@@ -116,69 +118,44 @@ export default {
         this.scenarioType = ''
       }
       
-      this.result = []
+      this.result = ''
+      this.featureDimensions = []
       this.finishedLoading = false
       
-      measurementsService.getMeasurements({type:this.type, scenarioType:this.scenarioType})
-        .then(promiseArray => promiseArray.forEach((prom, idx, arr) => {
-          prom.then(res => this.result.push(...res)).then(res => {if (!arr[idx+1]) this.finishedLoading = true})
-        }))
+      var feature = (this.type=='Datapoint') ? this.scenarioType : this.type
+      measurementsService.getFeatureDimensionsCSV(feature).then(res=>{
+        this.featureDimensions = res.join(', ') + "\n"
+        //console.log(res)
+        measurementsService.getMeasurementsCSV({type:this.type, scenarioType:this.scenarioType})
+        .then(promiseArray => {Promise.all(promiseArray).then(resultsArray=>{
+          //console.log('done');
+          this.finishedLoading = true
+          this.result = this.featureDimensions + resultsArray.join()
+          //console.log(this.result)
+        }
+        )
+       })
+      })
+      
+        
     },
 
-
-    toCSV: function(){
-      const { Parser } = require('json2csv');
-      var fields = Object.keys(this.result[0])
-      const json2csvParser = new Parser({ fields });
-      var csv = json2csvParser.parse(this.result);
-      return csv
-    },
    
     
     downloadCSV: function(){
-      this.currentFilename = 'L3Pilot_all_measurements_' + this.type + '.xls'
+      
       if (this.type == 'Datapoint')
-      {
-        this.worksheets.push(this.workbook.addWorksheet(this.scenarioType))
-        if (this.result.length !== 0)
-        {
-          
-          const fields = Object.keys(this.result[0])
-          var columns = new Array(fields.length)
-          for (var i=0; i<fields.length; i++)
-          {
-            columns[i] = {'header': fields[i], 'key': fields[i]}
-          }
-          this.worksheets[this.worksheets.length-1].columns = columns
-          this.worksheets[this.worksheets.length-1].columns.forEach(
-            column => {
-            column.width = column.header.length < 12 ? 12 : column.header.length
-            })
-          this.worksheets[this.worksheets.length-1].addRows(this.result)
-            
-        }
-        if (this.worksheets.length == this.constraints.length){
-          this.excelReady = false
-          this.workbook.xlsx.writeBuffer().then(data => {
-            var blob = new Blob([data], {type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"});
-            this.zip.file(this.currentFilename, blob, {binary: true})
-            this.excelReady = true
-          })
-          
-        }
-        else{
-          this.downloadNext()
-        }  
-      }
+        this.currentFilename = 'L3Pilot_all_measurements_Datapoint_' + this.scenarioType + '.xls'
       else
+        this.currentFilename = 'L3Pilot_all_measurements_' + this.type + '.xls'
+      
+      if (this.result.length !== 0)
       {
-        if (this.result.length !== 0)
-        {
-          const csv = this.toCSV();
-          this.zip.file(this.currentFilename, csv)
-        }
-        this.downloadNext()
+        this.result = this.result.replace(/\[/g,"\"").replace(/\]/g,"\"")
+        this.zip.file(this.currentFilename, this.result)
       }
+      this.downloadNext()
+      
       
     }
     
