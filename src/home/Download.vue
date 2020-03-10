@@ -124,13 +124,13 @@ export default {
       
       var feature = (this.type=='Datapoint') ? this.scenarioType : this.type
       measurementsService.getFeatureDimensionsCSV(feature).then(res=>{
-        this.featureDimensions = res
+        this.featureDimensions = res.join(', ') + "\n"
         //console.log(res)
         measurementsService.getMeasurementsCSV({type:this.type, scenarioType:this.scenarioType})
         .then(promiseArray => {Promise.all(promiseArray).then(resultsArray=>{
           //console.log('done');
           this.finishedLoading = true
-          this.result = resultsArray.join()
+          this.result = this.featureDimensions + resultsArray.join()
           //console.log(this.result)
         }
         )
@@ -140,14 +140,6 @@ export default {
         
     },
 
-
-    toCSV: function(){
-      const { Parser } = require('json2csv');
-      var fields = Object.keys(this.result[0])
-      const json2csvParser = new Parser({ fields });
-      var csv = json2csvParser.parse(this.result);
-      return csv
-    },
    
     
     downloadCSV: function(){
@@ -159,11 +151,7 @@ export default {
       
       if (this.result.length !== 0)
       {
-        //const csv = this.toCSV();
-        this.result= "0,,0,0,0,0,\"0,0,0,0,0,0,0,0,0\",\",,,,,,,,\",0,0,0,0"
-        var temp = this.result.split(',')
-        console.log(this.result)
-        console.log(temp)
+        this.result = this.result.replace(/\[/g,"\"").replace(/\]/g,"\"")
         this.zip.file(this.currentFilename, this.result)
       }
       this.downloadNext()

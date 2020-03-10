@@ -150,7 +150,10 @@ function getMeasurementsCSV({type='', condition='', roadType='', driverType='', 
   var countReq = `${config.apiUrl}/measurements/count?filter={"feature": "${feature}" ${tags}}`
   var results = axios.get(countReq)
     .then(res => Number(res.data.size))
-    .then(resultsCount => Math.ceil(resultsCount/limitRecords))
+    .then(resultsCount => {
+      //console.log(countReq)
+      //console.log(resultsCount)
+      return Math.ceil(resultsCount/limitRecords)})
     .then(tPages =>{
       var results = []
       for (var p=1; p<=tPages; p++)
