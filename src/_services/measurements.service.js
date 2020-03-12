@@ -45,8 +45,7 @@ function processRaw(res, featureDimensions){
         var data = {}
 
         for (let [index, dimName] of featdims.entries())
-          data[dimName] = m.samples[0].values[index].join(',')
-
+          data[dimName] = String(m.samples[0].values[index])  
         filtered.push(data)
       })
 
