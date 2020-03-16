@@ -88,7 +88,7 @@ export default {
   },
   created: function(){
     //Load dynamic data from services
-    tagsService.getTags(['Subjective-data','UI-Type']).then(res => {this.types = res})
+    tagsService.getTags(['UI-Type','Subjective-data']).then(res => {this.types = res})
     tagsService.getTags('UI-Condition').then(res => {this.conditions = res})
     tagsService.getTags('UI-RoadType').then(res => {this.roadTypes = res})
     tagsService.getTags('UI-DriverType').then(res => {this.driverTypes = res})
@@ -106,13 +106,17 @@ export default {
               .then(res => {if (!arr[idx+1]) this.loading = false})
         }))
    },
-    toSciNotation: function(value){
+   toSciNotation: function(value){
       var value_array = value.split().map(x => x.split(',').map(function(str_value, index) {
+        if (str_value == 'null' || str_value === '')
+          return ''
         var number_value = Number(str_value)
-        if (number_value % 1 === 0)
+        if (number_value%1 === 0)
           return number_value
+        else if (Math.abs(number_value)>= 0.001)
+          return Number.parseFloat(number_value).toFixed(3)
         else
-          return number_value.toExponential(4)
+          return number_value.toExponential(3)
       }).join(', '))
       
       return value_array
