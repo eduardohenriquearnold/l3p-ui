@@ -55,11 +55,10 @@ function processRaw(res, featureDimensions){
 }
 
 //Returns array of promisses for each page of results
-function getMeasurements({type='', condition='', roadType='', driverType='', scenarioType=''})
+function getMeasurements({type='', condition='', roadType='', driverType='', scenarioType='', pageNumber=-1, limitRecords = 10})
 {
   var feature = (type=='Datapoint') ? scenarioType : type
   var tags = [condition, roadType,driverType]
-  var limitRecords = 100 //Max num of records per API call
 
   //If not Trip_PI or Datapoint, tags should contain the ScenarioType (specification)
   if (!['Trip_PI','Datapoint'].includes(type))
@@ -76,7 +75,8 @@ function getMeasurements({type='', condition='', roadType='', driverType='', sce
   else
     tags = ''
   
-  var req = `${config.apiUrl}/measurements?filter={"feature": "${feature}" ${tags}}&limit=${limitRecords}`
+  
+  var req = `${config.apiUrl}/measurements?filter={"feature": "${feature}" ${tags}}`
 
   //Get dimensions name (column headers)
   var featureDimensions = getFeatureDimensions(feature)
@@ -84,7 +84,7 @@ function getMeasurements({type='', condition='', roadType='', driverType='', sce
   //Get results with pagination
   function getPage(page)
   {
-    var curResults = axios.get(req+`&page=${page}`)
+    var curResults = axios.get(req+`&limit=${limitRecords}&page=${page}`)
     .then(res => res.data.docs)
     .then(raw => processRaw(raw, featureDimensions))
     .catch(err => {console.log(err)})
@@ -93,12 +93,24 @@ function getMeasurements({type='', condition='', roadType='', driverType='', sce
   }
 
   //Get number of pages and request all of them in parallell
-  var results = axios.get(req)
-    .then(res => res.data.totalPages)
-    .then(tPages => {
+  // requesting only one record and first page to get number of pages and docs
+  var results = axios.get(req+`&limit=1&page=1`)
+    .then(res => [res.data.totalPages, res.data.totalDocs])
+    .then(tArray => {
+      let [tPages, tDoc] = tArray
       var results = []
-      for (var p=1; p<=tPages; p++)
-        results.push(getPage(p))
+      // -1 means all pages
+      if (pageNumber==-1)
+      {
+        for (var p=1; p<=tPages; p++)
+          results.push(getPage(p))
+      }
+      else
+      {  
+        results.push(getPage(pageNumber))
+        // If only one page is asked, results will contain total number of results (Docs)
+        results = [results, tDoc]  
+      }
       return results
     })
     .catch(err => {console.log(err)})
