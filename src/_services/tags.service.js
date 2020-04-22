@@ -9,7 +9,7 @@ export const tagsService = {
 function getTags(tagType)
 {
   var tagType = JSON.stringify(tagType)
-  var query = `${config.apiUrl}/tags?filter={"tags": ${tagType}}`
+  var query = `${config.apiUrl}/tags?filter={"tags":{"$all":${tagType}}}`
   console.log(query)
   
   function makeReq(page=1, results=[])
