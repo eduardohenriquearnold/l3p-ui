@@ -1,0 +1,12 @@
+version: "3.3"
+
+
+services: 
+  l3pilotUI:
+    build: 
+      context: ..
+      dockerfile: docker/Dockerfile.deploy
+    image: l3pilot/ui:deploy
+    ports:
+      - 80:10080
+    restart: always
