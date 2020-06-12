@@ -7,6 +7,8 @@ services:
       context: ..
       dockerfile: docker/Dockerfile.deploy
     image: l3pilot/ui:deploy
+    environment:
+      - VUE_APP_API_URL=https://apil3p.atmosphere.tools/v1
     depends_on:
       - letsencrypt
     restart: always

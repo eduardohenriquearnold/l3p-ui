@@ -8,7 +8,7 @@ module.exports = {
     externals: {
         // global app config object
         config: JSON.stringify({
-            apiUrl: 'https://apil3p.atmosphere.tools/v1' 
+            apiUrl: process.env.VUE_APP_API_URL //Get apiURL from ENV variable
         })
     } 
   }

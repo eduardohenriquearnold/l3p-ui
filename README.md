@@ -22,5 +22,9 @@ It uses the same docker deploy image and can be executed with
 docker-compose -f docker/docker-compose.dep.nohttps.yml up -d
 ```
 
-
 To force a rebuilt of the images, add `--build` to the above command.
+
+## API URL
+It is possible to configure the CDB API URL using the `VUE_APP_API_URL` environment variable in each `docker-compose.yml` file corresponding to the Development/Deploy modes.
+This allows to change the CDB API at runtime without needing to rebuild the images.
+The full consortium API is available on `https://apil3p.atmosphere.tools/v1`, however one can connect to a local API using `http://localhost:<API PORT>`, assuming that the API is configured locally at `<API PORT>`
