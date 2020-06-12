@@ -9,4 +9,6 @@ services:
     image: l3pilot/ui:deploy
     ports:
       - 80:10080
+    environment:
+      - VUE_APP_API_URL=https://apil3p.atmosphere.tools/v1
     restart: always
