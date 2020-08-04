@@ -2,7 +2,7 @@ import config from 'config';
 import axios from 'axios';
 
 export const measurementsService = {
-    getMeasurements, deleteThing, getMeasurementsCSV, getFeatureDimensionsCSV
+    getMeasurements, deleteThing, getMeasurementsCSV, getFeatureDimensions
 };
 
 //Get List of names of dimensions of a given feature
@@ -14,23 +14,11 @@ function getFeatureDimensions(feature)
     return dimensions 
   })
   .catch(err => {
-    console.log(err)  
+    console.log(err.message)  
   })
 }
 
-//Get List of names of dimensions of a given feature
-function getFeatureDimensionsCSV(type='', scenarioType='')
-{
-  var feature = (type=='Datapoint') ? scenarioType : type
-  var query = `${config.apiUrl}/features/${feature}`
-  return axios.get(query).then(res => {
-    var dimensions = res.data.items.map(d => d.name)
-    return dimensions
-  })
-  .catch(err => {
-    console.log(err)  
-  })
-}
+
 
 
 function processRaw(res, featureDimensions){
@@ -142,8 +130,6 @@ function getMeasurementsCSV({type='', condition='', roadType='', driverType='', 
   
   var req = `${config.apiUrl}/measurements?filter={"feature": "${feature}" ${tags}}&limit=${limitRecords}`
 
-  //Get dimensions name (column headers)
-  var featureDimensions = getFeatureDimensions(feature)
 
   //Get results with pagination
   function getPage(page)
