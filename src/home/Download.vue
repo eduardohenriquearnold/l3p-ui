@@ -122,20 +122,31 @@ export default {
       this.featureDimensions = []
       this.finishedLoading = false
       
-      var feature = (this.type=='Datapoint') ? this.scenarioType : this.type
-      measurementsService.getFeatureDimensionsCSV(feature).then(res=>{
-        this.featureDimensions = res.join(', ') + "\n"
-        //console.log(res)
-        measurementsService.getMeasurementsCSV({type:this.type, scenarioType:this.scenarioType})
-        .then(promiseArray => {Promise.all(promiseArray).then(resultsArray=>{
-          //console.log('done');
-          this.finishedLoading = true
-          this.result = this.featureDimensions + resultsArray.join()
-          //console.log(this.result)
+      var feature = (this.type=='Datapoint') ? this.scenarioType : this.type  
+      measurementsService.getMeasurementsCSV({type:this.type, scenarioType:this.scenarioType})
+      .then(promiseArray => {Promise.all(promiseArray).then(resultsArray=>{
+        //console.log('done');
+        //console.log(resultsArray)
+        if(resultsArray.length != 0)
+        {
+          measurementsService.getFeatureDimensions(feature).then(res=>
+          {
+            this.featureDimensions = res.join(', ') + "\n"
+            this.result = this.featureDimensions + resultsArray.join()
+            this.finishedLoading = true
+          }
+          )
         }
-        )
-       })
+        else{
+          this.result = ''
+          this.finishedLoading = true
+        }
+        
+        //console.log(this.result)
+      }
+      )
       })
+      
       
         
     },
@@ -145,9 +156,9 @@ export default {
     downloadCSV: function(){
       
       if (this.type == 'Datapoint')
-        this.currentFilename = 'L3Pilot_all_measurements_Datapoint_' + this.scenarioType + '.xls'
+        this.currentFilename = 'L3Pilot_all_measurements_Datapoint_' + this.scenarioType + '.csv'
       else
-        this.currentFilename = 'L3Pilot_all_measurements_' + this.type + '.xls'
+        this.currentFilename = 'L3Pilot_all_measurements_' + this.type + '.csv'
       
       if (this.result.length !== 0)
       {
