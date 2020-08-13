@@ -15,6 +15,7 @@
       <!-- </b-nav-item-dropdown> -->
       <b-nav-item to="/delete">Delete</b-nav-item>
       <b-nav-item to="/download">Download</b-nav-item>
+      <b-nav-item href="https://confluence-l3pilot.eict.de/display/SP6/CDB+documentation">Documentation</b-nav-item>
       <b-nav-item to="/login">Logout</b-nav-item>
     </b-navbar-nav>
   </b-navbar>
