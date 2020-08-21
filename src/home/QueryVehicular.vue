@@ -45,8 +45,9 @@
     </div>
 
     <div class="form-group col-md-12 ">
-      <button type="button" class="btn btn-primary" v-on:click="handleSubmit()">Submit</button>
-      <button type="button" class="btn btn-primary" v-on:click="handleExport()" :disabled="totalResults == 0">Export</button>
+      <b-button squared variant="primary" v-on:click="handleSubmit()">Submit</b-button>
+      <b-button squared variant="primary" v-on:click="handleExport()" :disabled="totalResults == 0">Export</b-button>
+      <b-button v-show="submitted" squared disabled variant="success">{{totalResults}} results</b-button>
     </div>
 
     <img v-show="loading" src="data:image/gif;base64,R0lGODlhEAAQAPIAAP///wAAAMLCwkJCQgAAAGJiYoKCgpKSkiH/C05FVFNDQVBFMi4wAwEAAAAh/hpDcmVhdGVkIHdpdGggYWpheGxvYWQuaW5mbwAh+QQJCgAAACwAAAAAEAAQAAADMwi63P4wyklrE2MIOggZnAdOmGYJRbExwroUmcG2LmDEwnHQLVsYOd2mBzkYDAdKa+dIAAAh+QQJCgAAACwAAAAAEAAQAAADNAi63P5OjCEgG4QMu7DmikRxQlFUYDEZIGBMRVsaqHwctXXf7WEYB4Ag1xjihkMZsiUkKhIAIfkECQoAAAAsAAAAABAAEAAAAzYIujIjK8pByJDMlFYvBoVjHA70GU7xSUJhmKtwHPAKzLO9HMaoKwJZ7Rf8AYPDDzKpZBqfvwQAIfkECQoAAAAsAAAAABAAEAAAAzMIumIlK8oyhpHsnFZfhYumCYUhDAQxRIdhHBGqRoKw0R8DYlJd8z0fMDgsGo/IpHI5TAAAIfkECQoAAAAsAAAAABAAEAAAAzIIunInK0rnZBTwGPNMgQwmdsNgXGJUlIWEuR5oWUIpz8pAEAMe6TwfwyYsGo/IpFKSAAAh+QQJCgAAACwAAAAAEAAQAAADMwi6IMKQORfjdOe82p4wGccc4CEuQradylesojEMBgsUc2G7sDX3lQGBMLAJibufbSlKAAAh+QQJCgAAACwAAAAAEAAQAAADMgi63P7wCRHZnFVdmgHu2nFwlWCI3WGc3TSWhUFGxTAUkGCbtgENBMJAEJsxgMLWzpEAACH5BAkKAAAALAAAAAAQABAAAAMyCLrc/jDKSatlQtScKdceCAjDII7HcQ4EMTCpyrCuUBjCYRgHVtqlAiB1YhiCnlsRkAAAOwAAAAAAAAAAAA==" />
@@ -58,10 +59,8 @@
     <b-table responsive striped hover  :fields="resultFields" :items="resultProvider" :per-page="10" :busy="loading" :current-page="currentPage" id="resultTable" v-if="submitted">
     </b-table>
     <b-pagination v-model="currentPage" :limit="10" :total-rows="totalResults" :per-page="10" aria-controls="resultTable" v-if="submitted && totalResults>0"></b-pagination>
-    <div v-show="submitted">
-    {{totalResults}} results retrieved
-    </div>
   </form>
+  <b-alert v-if="error" show variant="danger">{{error}}</b-alert>
 </div>
 </template>
 
@@ -92,6 +91,7 @@ export default {
       result: [],
       progressPercent: 0,
       progressMax: 1,
+      error: '',
     }
   },
   computed: {
@@ -135,6 +135,7 @@ export default {
       return measurementsService.getMeasurements({type:this.type, condition:this.condition, roadType:this.roadType, driverType:this.driverType, scenarioType:this.scenarioType, pageNumber:ctx.currentPage, limitRecords:ctx.perPage})
         .then(result => {this.totalResults = result[1]; const items = result[0][0]; return items || []})
         .then(items => {this.currentResults=items; this.loading = false; return items})
+        .catch(err => {this.error = err; this.loading = false;})
     },
 
     handleSubmit: function(){
@@ -152,6 +153,7 @@ export default {
           prom.then(res => {this.result.push(...res);this.progressPercent += 1})
               .then(res => {if (!arr[idx+1]) {this.loading = false; this.DownloadCSV(); }})
           }))
+        .catch(err => {this.error = err; this.loading = false;})
     },
 
     DownloadCSV: function(){
@@ -202,6 +204,7 @@ export default {
       this.submitted = false
       this.result = []
       this.totalResults = 0
+      this.error = ''
     },
     type : function(){
       this.condition = ''
