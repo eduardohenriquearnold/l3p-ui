@@ -1,6 +1,6 @@
 <template>
 <div>
-  <form @submit.prevent="handleSubmit">
+  <form @submit.prevent>
 
     <div class="form-row col-md-10 offset-sm-1">
         <div class="form-group col-md-3" >
@@ -12,21 +12,19 @@
     </div>
 
     <div class="form-group col-md-12 ">
-     <button type="submit" class="btn btn-primary">Submit</button>
-     <button type="button" class="btn btn-primary" v-on:click="handleExport()" :disabled="submitted == false || totalResults == 0">Export</button>
+      <button type="button" class="btn btn-primary" v-on:click="handleSubmit()">Submit</button>
+      <button type="button" class="btn btn-primary" v-on:click="handleExport()" :disabled="totalResults == 0">Export</button>
     </div>
 
-    <img v-show="loading || isBusy" src="data:image/gif;base64,R0lGODlhEAAQAPIAAP///wAAAMLCwkJCQgAAAGJiYoKCgpKSkiH/C05FVFNDQVBFMi4wAwEAAAAh/hpDcmVhdGVkIHdpdGggYWpheGxvYWQuaW5mbwAh+QQJCgAAACwAAAAAEAAQAAADMwi63P4wyklrE2MIOggZnAdOmGYJRbExwroUmcG2LmDEwnHQLVsYOd2mBzkYDAdKa+dIAAAh+QQJCgAAACwAAAAAEAAQAAADNAi63P5OjCEgG4QMu7DmikRxQlFUYDEZIGBMRVsaqHwctXXf7WEYB4Ag1xjihkMZsiUkKhIAIfkECQoAAAAsAAAAABAAEAAAAzYIujIjK8pByJDMlFYvBoVjHA70GU7xSUJhmKtwHPAKzLO9HMaoKwJZ7Rf8AYPDDzKpZBqfvwQAIfkECQoAAAAsAAAAABAAEAAAAzMIumIlK8oyhpHsnFZfhYumCYUhDAQxRIdhHBGqRoKw0R8DYlJd8z0fMDgsGo/IpHI5TAAAIfkECQoAAAAsAAAAABAAEAAAAzIIunInK0rnZBTwGPNMgQwmdsNgXGJUlIWEuR5oWUIpz8pAEAMe6TwfwyYsGo/IpFKSAAAh+QQJCgAAACwAAAAAEAAQAAADMwi6IMKQORfjdOe82p4wGccc4CEuQradylesojEMBgsUc2G7sDX3lQGBMLAJibufbSlKAAAh+QQJCgAAACwAAAAAEAAQAAADMgi63P7wCRHZnFVdmgHu2nFwlWCI3WGc3TSWhUFGxTAUkGCbtgENBMJAEJsxgMLWzpEAACH5BAkKAAAALAAAAAAQABAAAAMyCLrc/jDKSatlQtScKdceCAjDII7HcQ4EMTCpyrCuUBjCYRgHVtqlAiB1YhiCnlsRkAAAOwAAAAAAAAAAAA==" />
-    <div class="form-group col-md-6" v-show="loading">
-    <b-progress :value="progressPercent" :max="progressMax" animated></b-progress>
+    <img v-show="loading" src="data:image/gif;base64,R0lGODlhEAAQAPIAAP///wAAAMLCwkJCQgAAAGJiYoKCgpKSkiH/C05FVFNDQVBFMi4wAwEAAAAh/hpDcmVhdGVkIHdpdGggYWpheGxvYWQuaW5mbwAh+QQJCgAAACwAAAAAEAAQAAADMwi63P4wyklrE2MIOggZnAdOmGYJRbExwroUmcG2LmDEwnHQLVsYOd2mBzkYDAdKa+dIAAAh+QQJCgAAACwAAAAAEAAQAAADNAi63P5OjCEgG4QMu7DmikRxQlFUYDEZIGBMRVsaqHwctXXf7WEYB4Ag1xjihkMZsiUkKhIAIfkECQoAAAAsAAAAABAAEAAAAzYIujIjK8pByJDMlFYvBoVjHA70GU7xSUJhmKtwHPAKzLO9HMaoKwJZ7Rf8AYPDDzKpZBqfvwQAIfkECQoAAAAsAAAAABAAEAAAAzMIumIlK8oyhpHsnFZfhYumCYUhDAQxRIdhHBGqRoKw0R8DYlJd8z0fMDgsGo/IpHI5TAAAIfkECQoAAAAsAAAAABAAEAAAAzIIunInK0rnZBTwGPNMgQwmdsNgXGJUlIWEuR5oWUIpz8pAEAMe6TwfwyYsGo/IpFKSAAAh+QQJCgAAACwAAAAAEAAQAAADMwi6IMKQORfjdOe82p4wGccc4CEuQradylesojEMBgsUc2G7sDX3lQGBMLAJibufbSlKAAAh+QQJCgAAACwAAAAAEAAQAAADMgi63P7wCRHZnFVdmgHu2nFwlWCI3WGc3TSWhUFGxTAUkGCbtgENBMJAEJsxgMLWzpEAACH5BAkKAAAALAAAAAAQABAAAAMyCLrc/jDKSatlQtScKdceCAjDII7HcQ4EMTCpyrCuUBjCYRgHVtqlAiB1YhiCnlsRkAAAOwAAAAAAAAAAAA==" />
+    <div class="form-group col-md-6" v-show="loading && progressPercent > 0">
+      <b-progress :value="progressPercent" :max="progressMax" animated></b-progress>
     </div> 
 
-
     <!-- Results Table and pagination -->
-    <b-table responsive striped hover  :fields="resultFields" :items="resultProvider" :per-page="10" :busy="isBusy" :current-page="currentPage" id="resultTable" v-if="submitted">
-      
+    <b-table responsive striped hover  :fields="resultFields" :items="resultProvider" :per-page="10" :busy="loading" :current-page="currentPage" id="resultTable" v-if="submitted">
     </b-table>
-    <b-pagination v-model="currentPage" :total-rows="totalResults" :per-page="10" aria-controls="resultTable" v-if="submitted && totalResults>0"></b-pagination>
+    <b-pagination v-model="currentPage" :limit=10 :total-rows="totalResults" :per-page="10" aria-controls="resultTable" v-if="submitted && totalResults>0"></b-pagination>
     <div v-show="submitted">
     {{totalResults}} results retrieved
     </div>
@@ -39,11 +37,12 @@ import { tagsService, measurementsService } from '../_services';
 
 export default {
   name:'QuerySubjective',
+  
   data: function ()
   {
     return {
       submitted: false,
-      isBusy: false,
+      loading: false,
       currentResults: [],
       type : '',
       types: [],
@@ -58,10 +57,8 @@ export default {
       currentPage: 1,
       totalResults: 0,
       result: [],
-      loading: false,
       progressPercent: 0,
       progressMax: 1,
-      readyToExport: false,
     }
   },
   computed: {
@@ -94,18 +91,15 @@ export default {
   created: function(){
     //Load dynamic data from services
     tagsService.getTags(['UI-Type','Subjective-data']).then(res => {this.types = res})
-    tagsService.getTags('UI-Condition').then(res => {this.conditions = res})
-    tagsService.getTags('UI-RoadType').then(res => {this.roadTypes = res})
-    tagsService.getTags('UI-DriverType').then(res => {this.driverTypes = res})
-    tagsService.getConstraints('UI-Type-ScenarioType').then(res => {this.constraints = res})
   },
   methods: {
     resultProvider: function(ctx){
-      this.isBusy = true
+      this.loading = true
       return measurementsService.getMeasurements({type:this.type, condition:this.condition, roadType:this.roadType, driverType:this.driverType, scenarioType:this.scenarioType, pageNumber:ctx.currentPage, limitRecords:ctx.perPage})
         .then(result => {this.totalResults = result[1]; const items = result[0][0]; return items || []})
-        .then(items => {this.currentResults=items; this.isBusy = false; return items})
+        .then(items => {this.currentResults=items; this.loading = false; return items})
     },
+
     handleSubmit: function(){
       this.submitted = true
       this.currentPage = 1
@@ -114,20 +108,17 @@ export default {
     handleExport: function(){
       this.result = []
       this.loading = true 
-      this.readyToExport = false
       this.progressPercent = 0
       measurementsService.getMeasurements({type:this.type, condition:this.condition, roadType:this.roadType, driverType:this.driverType, scenarioType:this.scenarioType})
           .then(promiseArray => promiseArray.forEach((prom, idx, arr) => {
           this.progressMax = arr.length
           prom.then(res => {this.result.push(...res);this.progressPercent += 1})
-              .then(res => {if (!arr[idx+1]) {this.loading = false; this.readyToExport = true}})
+              .then(res => {if (!arr[idx+1]) {this.loading = false; this.DownloadCSV(); }})
           }))
     },
 
     DownloadCSV: function(){
-      this.readyToExport = false
       var data, filename, link;
-      //var csv = this.toCSV(this.result, this.selectedTags);
       const { Parser } = require('json2csv');
       var fields = Object.keys(this.result[0])
       const json2csvParser = new Parser({ fields });
@@ -152,20 +143,7 @@ export default {
       document.body.removeChild(link);
     },
 
-    toCSV: function(arrayObject, selectedTags){
-      const { Parser } = require('json2csv');
-      var fields = Object.keys(arrayObject[0])
-      const json2csvParser = new Parser({ fields });
-      var csv = json2csvParser.parse(arrayObject);
-      if (selectedTags.length>0)
-      {
-          var init = "Active Tags:, " + selectedTags.toString() + "\n"
-          csv = init + csv
-      }
-      return csv
-    },
-
-   toSciNotation: function(value){
+    toSciNotation: function(value){
       var value_array = value.split().map(x => x.split(',').map(function(str_value, index) {
         if (str_value == 'null' || str_value === '')
           return ''
@@ -180,18 +158,13 @@ export default {
       
       return value_array
    }
+
   },
   watch: {
-    readyToExport: function(val){
-      if(val)
-      {
-        this.DownloadCSV()
-      }
-    },
     allInputData: function(){
       this.submitted = false
-      this.readyToExport = false
       this.result = []
+      this.totalResults = 0
     },
     type : function(){
       this.condition = ''

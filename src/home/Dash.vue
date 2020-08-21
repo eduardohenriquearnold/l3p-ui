@@ -35,4 +35,8 @@ export default {
 body{
   color: #172b4d;
 }
+
+.jumbotron{
+  height: 100vh;
+}
 </style>
