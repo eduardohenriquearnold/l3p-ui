@@ -14,12 +14,12 @@ function getFeatureDimensions(feature)
     return dimensions 
   })
   .catch(err => {
-    console.log(err.message)  
-  })
+    if (err.response.status == 403)
+      return Promise.reject(new Error("Error 403: Permission denied, this user does not have the required permissions"))
+    else
+      return err
+    })
 }
-
-
-
 
 function processRaw(res, featureDimensions){
     //Joint promise for both results and feat dimensions
@@ -39,7 +39,6 @@ function processRaw(res, featureDimensions){
 
       return filtered
     })
-    .catch(err => {console.log(err)})
 }
 
 //Returns array of promisses for each page of results
@@ -63,7 +62,6 @@ function getMeasurements({type='', condition='', roadType='', driverType='', sce
   else
     tags = ''
   
-  
   var req = `${config.apiUrl}/measurements?filter={"feature": "${feature}" ${tags}}`
 
   //Get dimensions name (column headers)
@@ -75,7 +73,6 @@ function getMeasurements({type='', condition='', roadType='', driverType='', sce
     var curResults = axios.get(req+`&limit=${limitRecords}&page=${page}`)
     .then(res => res.data.docs)
     .then(raw => processRaw(raw, featureDimensions))
-    .catch(err => {console.log(err)})
 
     return curResults
   }
@@ -101,12 +98,9 @@ function getMeasurements({type='', condition='', roadType='', driverType='', sce
       }
       return results
     })
-    .catch(err => {console.log(err)})
 
   return results
 }
-
-
 
 function getMeasurementsCSV({type='', condition='', roadType='', driverType='', scenarioType=''})
 {
@@ -139,7 +133,6 @@ function getMeasurementsCSV({type='', condition='', roadType='', driverType='', 
         'Accept': 'text/csv'
       }
     }).then(res =>res.data)
-      .catch(err => {console.log(err)})
     return curResults
   }
 
@@ -148,8 +141,6 @@ function getMeasurementsCSV({type='', condition='', roadType='', driverType='', 
   var results = axios.get(countReq)
     .then(res => Number(res.data.size))
     .then(resultsCount => {
-      //console.log(countReq)
-      //console.log(resultsCount)
       return Math.ceil(resultsCount/limitRecords)})
     .then(tPages =>{
       var results = []
@@ -159,8 +150,6 @@ function getMeasurementsCSV({type='', condition='', roadType='', driverType='', 
       }
       return results
     })
-    .catch(err => {console.log(err)})
-  
 
   return results
 }
