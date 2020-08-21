@@ -89,6 +89,7 @@ export default {
       currentPage: 1,
       totalResults: 0,
       result: [],
+      resultCSV: "",
       progressPercent: 0,
       progressMax: 1,
       error: '',
@@ -144,36 +145,49 @@ export default {
     },
 
     handleExport: function(){
-      this.result = []
+      this.resultCSV = ""
       this.loading = true 
-      this.progressPercent = 0
-      measurementsService.getMeasurements({type:this.type, condition:this.condition, roadType:this.roadType, driverType:this.driverType, scenarioType:this.scenarioType})
-          .then(promiseArray => promiseArray.forEach((prom, idx, arr) => {
-          this.progressMax = arr.length
-          prom.then(res => {this.result.push(...res);this.progressPercent += 1})
-              .then(res => {if (!arr[idx+1]) {this.loading = false; this.DownloadCSV(); }})
-          }))
-        .catch(err => {this.error = err; this.loading = false;})
+      var feature = (this.type=='Datapoint') ? this.scenarioType : this.type 
+      measurementsService.getMeasurementsCSV({type:this.type, condition:this.condition, roadType:this.roadType, driverType:this.driverType, scenarioType:this.scenarioType})
+          .then(promiseArray => {Promise.all(promiseArray).then(resultsArray=>{
+           
+            if(resultsArray.length != 0)
+            {
+              measurementsService.getFeatureDimensions(feature).then(res=>
+              {
+                var featureDimensions = res.join(',') + ",\n"
+                this.resultCSV = featureDimensions + resultsArray.join('')
+                this.loading = false
+                this.DownloadCSV()
+                
+              }
+              )
+            }
+            else{
+              this.resultCSV = ""
+              this.loading = false
+            }
+            
+            
+          }
+          )
+          })
+
     },
 
     DownloadCSV: function(){
       var data, filename, link;
-      const { Parser } = require('json2csv');
-      var fields = Object.keys(this.result[0])
-      const json2csvParser = new Parser({ fields });
-      var csv = json2csvParser.parse(this.result);
       if (this.selectedTags.length>0)
       {
-          var init = "Active Tags:, " + this.selectedTags.toString() + "\n"
-          csv = init + csv
+          var init = "Active Tags:," + this.selectedTags.toString() + "\n"
+          this.resultCSV = init + this.resultCSV
       }
-      
-      if (csv == null) return;
-      filename = 'export.csv';
-      if (!csv.match(/^data:text\/csv/i)) {
-          csv = 'data:text/csv;charset=utf-8,' + csv;
+      var feature = (this.type=='Datapoint') ? this.scenarioType : this.type 
+      filename = 'Queried_export_of_'+ feature +'.csv';
+      if (!this.resultCSV.match(/^data:text\/csv/i)) {
+          this.resultCSV = 'data:text/csv;charset=utf-8,' + this.resultCSV;
       }
-      data = encodeURI(csv);
+      data = encodeURI(this.resultCSV);
       link = document.createElement('a');
       link.setAttribute('href', data);
       link.setAttribute('download', filename);
