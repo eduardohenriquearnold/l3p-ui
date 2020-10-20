@@ -170,7 +170,7 @@ export default {
           return Number.parseFloat(number_value).toFixed(3)
         else
           return number_value.toExponential(3)
-      }).join(', '))
+      }).join(', ')).toString()
       
       return value_array
    }
