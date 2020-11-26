@@ -131,7 +131,7 @@ export default {
         {
           measurementsService.getFeatureDimensions(feature).then(res=>
           {
-            this.featureDimensions = res.join(',') + ",\n"
+            this.featureDimensions = res.join(',') + "\n"
             this.result = this.featureDimensions + resultsArray.join('')
             this.finishedLoading = true
           }

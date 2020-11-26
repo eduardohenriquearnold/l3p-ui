@@ -155,7 +155,7 @@ export default {
             {
               measurementsService.getFeatureDimensions(feature).then(res=>
               {
-                var featureDimensions = res.join(',') + ",\n"
+                var featureDimensions = res.join(',') + "\n"
                 this.resultCSV = featureDimensions + resultsArray.join('')
                 this.loading = false
                 this.DownloadCSV()
