@@ -2,7 +2,7 @@ import config from 'config';
 import axios from 'axios';
 
 export const measurementsService = {
-    getMeasurements, deleteThing, getMeasurementsCSV, getFeatureDimensions
+    getMeasurements, deleteThing, getMeasurementsCSV, getFeatureDimensions, getMeasurementsPipe, getMeasurementsCount
 };
 
 //Get List of names of dimensions of a given feature
@@ -153,6 +153,70 @@ function getMeasurementsCSV({type='', condition='', roadType='', driverType='', 
 
   return results
 }
+
+function getMeasurementsPipe({type='', condition='', roadType='', driverType='', scenarioType='', onProgress})
+{
+  var feature = (type=='Datapoint') ? scenarioType : type
+  var tags = [condition, roadType,driverType]
+  
+  //If not Trip_PI or Datapoint, tags should contain the ScenarioType (specification)
+  if (!['Trip_PI','Datapoint'].includes(type))
+    tags.push(scenarioType)
+
+  //Remove empty tags
+  tags = tags.filter(t => t!='')
+    
+  if (tags.length > 0)
+  {
+    tags = JSON.stringify(tags)
+    tags = `, "tags": {"$all" : ${tags}}`
+  }
+  else
+    tags = ''
+  
+  var req = `${config.apiUrl}/measurements/pipe?filter={"feature": "${feature}" ${tags}}`
+
+  //Get dimensions name (column headers)
+  var featureDimensions = getFeatureDimensions(feature)
+
+  let getConfig = {
+    headers:{
+      'Accept': 'text/csv'
+    }
+  }
+  var results = axios.get(req,getConfig).then(res => res.data)
+  
+  return results
+}
+
+function getMeasurementsCount({type='', condition='', roadType='', driverType='', scenarioType=''})
+{
+  var feature = (type=='Datapoint') ? scenarioType : type
+  var tags = [condition, roadType,driverType]
+  
+  //If not Trip_PI or Datapoint, tags should contain the ScenarioType (specification)
+  if (!['Trip_PI','Datapoint'].includes(type))
+    tags.push(scenarioType)
+
+  //Remove empty tags
+  tags = tags.filter(t => t!='')
+    
+  if (tags.length > 0)
+  {
+    tags = JSON.stringify(tags)
+    tags = `, "tags": {"$all" : ${tags}}`
+  }
+  else
+    tags = ''
+  
+  var countReq = `${config.apiUrl}/measurements/count?filter={"feature": "${feature}" ${tags}}`
+
+  var resultsCount = axios.get(countReq)
+    .then(res => {return Number(res.data.size)})
+
+  return resultsCount
+}
+
 
 function deleteThing({thing='', feature=''}){
   var query = `${config.apiUrl}/measurements?filter={`
