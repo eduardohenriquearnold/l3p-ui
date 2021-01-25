@@ -33,33 +33,50 @@ export default {
   {
     return {
       progressMax: 100,
-      types: [],
-      constraints: [],
-      result: '',
-      featureDimensions: [],
-      finishedLoading: true,
+      types: [], // types of queries
+      constraints: [], //constraints of queries
+      result: '', // get measurements result
+      featureDimensions: [], // get measurement feature dimensions
+  
       downloading: false,
-      excelReady: true,
-      currentType: -1,
-      currentScenario: -1,
-      type: '',
-      scenarioType: '',
-      workbook: [],
-      worksheets: [],
-      currentFilename : "",
+      measurementsReady: false,
+      countReady: false,
+      
+      measurementsCountArr: [],
+      typePointer: 0,
+      currentType: 0,
+      currentScenario: 0,
+      type: '', // selected type for measurement query
+      scenarioType: '', //selected scenario type for measurement query
       zip:[],
     }
   },
   created: function(){
-    //Load dynamic data from services
-    tagsService.getTags('UI-Type').then(res => {this.types = res})
-    tagsService.getSpecificConstraint('Datapoint','UI-Type-ScenarioType').then(res => {this.constraints = res})
+    tagsService.getTags('UI-Type').then(res => {
+      this.types = res
+      /* Debugging logs
+      console.log('all types:')
+      console.log(JSON.stringify(this.types))
+      */
+      })
+    tagsService.getSpecificConstraint('Datapoint','UI-Type-ScenarioType').then(res => {
+      this.constraints = res
+      /* Debugging logs
+      console.log('all constraints:')
+      console.log(JSON.stringify(this.constraints))
+      */
+      })
     
   },
   computed:{
+    totalMeasurements: function(){
+      return this.measurementsCountArr.reduce((a,b)=> a+b, 0)
+    },
     progressPercent: function(){
-      
-      return Math.floor(this.progressMax * (this.currentType+1) / this.types.length)
+      let downloadedMeasurementsArr = this.measurementsCountArr.slice(1, this.typePointer)
+      let downloadedMeasurements = downloadedMeasurementsArr.reduce((a,b) => a+b,0)
+
+      return Math.floor(this.progressMax * (downloadedMeasurements) / this.totalMeasurements)
     },
     downloadText: function(){
       return 'Downloading ' + this.type + 's ...'
@@ -69,47 +86,48 @@ export default {
   methods: {
     handleDownload: function(){
       this.downloading = true
+      this.getResultCount()
     },
     downloadNext: function(){
-      if (this.type == 'Datapoint' && this.currentScenario < this.constraints.length-1) {
-        this.currentScenario = this.currentScenario + 1
-      }
-      else{
-        this.currentScenario = 0
-        this.currentType = this.currentType + 1
-      }
       
+      this.incrementTypePointer()
       // If all files are downloaded
+      let filename = 'L3Pilot_all_measurements.zip'
       if (this.currentType >= this.types.length){
-          this.currentType = -1 // it is the default reset value
-          this.currrentScenario = -1 // it is the default reset value
-          var filename = 'L3Pilot_all_measurements.zip'
           this.zip.generateAsync({type:"blob"})
           .then(function (blob) {
               saveAs(blob, filename)
               
           }).then(res =>{
-            // Reset everything
-            this.downloading = false
-            this.zip = []
-            this.workbook = []
-            this.worksheets = []
-            this.currentType = -1
-            this.currentScenario = -1
-            this.type = ''
-            this.scenarioType = ''
-            this.result = ''
-            this.featureDimensions = []
-            this.currentFilename = ''
+            this.resetFlags()
             })
-
       }
       else{
+        this.measurementsReady = false
         this.getResult()
       }
     },
     
-
+    getResultCount: function(){
+      var countPromises = []
+      this.types.forEach(type=>{
+        if (type == 'Datapoint'){
+          this.constraints.forEach(scenarioType =>{
+            var scenarioType = scenarioType.element2
+            countPromises.push(measurementsService.getMeasurementsCount({type:type, scenarioType:scenarioType}))
+          })
+        }else{
+          var scenarioType = ''
+          countPromises.push(measurementsService.getMeasurementsCount({type:type, scenarioType:scenarioType}))
+        }
+      })
+      
+      Promise.all(countPromises)
+        .then(res => {
+          this.measurementsCountArr = res
+          this.countReady = true
+          })
+    },
     getResult: function(){
       this.type = this.types[this.currentType]
       if(this.type == 'Datapoint'){
@@ -120,32 +138,35 @@ export default {
       
       this.result = ''
       this.featureDimensions = []
-      this.finishedLoading = false
+      this.measurementsReady = false
+      
       
       var feature = (this.type=='Datapoint') ? this.scenarioType : this.type  
-      measurementsService.getMeasurementsCSV({type:this.type, scenarioType:this.scenarioType})
-      .then(promiseArray => {Promise.all(promiseArray).then(resultsArray=>{
-        //console.log('done');
-        //console.log(resultsArray)
+      /* Debugging logs
+      console.log('query on:')
+      console.log(this.type)
+      console.log(this.scenarioType)
+      */
+      measurementsService.getMeasurementsPipe({type:this.type, scenarioType:this.scenarioType, onProgress:this.onProgress})
+      .then(resultsArray=>{
         if(resultsArray.length != 0)
         {
           measurementsService.getFeatureDimensions(feature).then(res=>
           {
             this.featureDimensions = res.join(',') + "\n"
-            this.result = this.featureDimensions + resultsArray.join('')
-            this.finishedLoading = true
+            this.result = this.featureDimensions + resultsArray
+            this.measurementsReady = true
           }
           )
         }
         else{
           this.result = ''
-          this.finishedLoading = true
+          this.measurementsReady = true
         }
         
-        //console.log(this.result)
       }
       )
-      })
+      
       
       
         
@@ -153,48 +174,65 @@ export default {
 
    
     
-    downloadCSV: function(){
+    addToZip: function(){
       
       if (this.type == 'Datapoint')
-        this.currentFilename = 'L3Pilot_all_measurements_Datapoint_' + this.scenarioType + '.csv'
+        var currentFilename = 'L3Pilot_all_measurements_Datapoint_' + this.scenarioType + '.csv'
       else
-        this.currentFilename = 'L3Pilot_all_measurements_' + this.type + '.csv'
+        var currentFilename = 'L3Pilot_all_measurements_' + this.type + '.csv'
       
       if (this.result.length !== 0)
       {
         this.result = this.result.replace(/\[/g,"\"").replace(/\]/g,"\"")
-        this.zip.file(this.currentFilename, this.result)
+        this.zip.file(currentFilename, this.result)
       }
       this.downloadNext()
       
       
+    },
+
+    resetFlags: function(){
+      // Reset everything
+      this.currentType = 0 
+      this.currentScenario = 0 
+      this.downloading = false
+      this.countReady = false
+      this.measurementsReady = false
+      this.measurementsCountArr = []
+      this.zip = []
+      this.type = ''
+      this.scenarioType = ''
+      this.result = ''
+      this.featureDimensions = []
+      this.typePointer = 0
+
+    },
+
+    incrementTypePointer: function(){
+      this.typePointer = this.typePointer + 1
+      if (this.type == 'Datapoint' && this.currentScenario < this.constraints.length-1) {
+        this.currentScenario = this.currentScenario + 1
+      }
+      else{
+        this.currentScenario = 0
+        this.currentType = this.currentType + 1
+      }
     }
     
   },
 
 
   watch: {
-    finishedLoading: function(val){
+    measurementsReady: function(val){
       // When data is loaded from server start download
       if(val == true && this.downloading == true){
-        this.downloadCSV() 
+        this.addToZip() 
       }
     },
-    downloading: function(val){
-      // Start download if downloading become true
-      
-      if(val == true){
-        
+    countReady: function(val){
+      if (val == true){
         this.zip = new JSZip()
-        this.workbook = new Excel.Workbook()
-        this.currentType = 0
-        this.currentScenario = 0
         this.getResult()
-      }
-    },
-    excelReady: function(val){ 
-      if(val == true){
-        this.downloadNext()
       }
     },
 
