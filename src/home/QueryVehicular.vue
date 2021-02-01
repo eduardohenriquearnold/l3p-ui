@@ -148,30 +148,29 @@ export default {
       this.resultCSV = ""
       this.loading = true 
       var feature = (this.type=='Datapoint') ? this.scenarioType : this.type 
-      measurementsService.getMeasurementsCSV({type:this.type, condition:this.condition, roadType:this.roadType, driverType:this.driverType, scenarioType:this.scenarioType})
-          .then(promiseArray => {Promise.all(promiseArray).then(resultsArray=>{
-           
-            if(resultsArray.length != 0)
-            {
-              measurementsService.getFeatureDimensions(feature).then(res=>
-              {
-                var featureDimensions = res.join(',') + "\n"
-                this.resultCSV = featureDimensions + resultsArray.join('')
-                this.loading = false
-                this.DownloadCSV()
-                
-              }
-              )
-            }
-            else{
-              this.resultCSV = ""
-              this.loading = false
-            }
-            
-            
+      
+      
+      measurementsService.getMeasurementsPipe({type:this.type, condition:this.condition, roadType:this.roadType, driverType:this.driverType, scenarioType:this.scenarioType})
+      .then(resultsArray=>{
+        if(resultsArray.length != 0)
+        {
+          measurementsService.getFeatureDimensions(feature).then(res=>
+          {
+            var featureDimensions = res.join(',') + "\n"
+            this.resultCSV = featureDimensions + resultsArray
+            this.loading = false
+            this.DownloadCSV()
           }
           )
-          })
+        }
+        else{
+          this.resultCSV = ''
+          this.loading = false
+        }
+        
+      }
+      )
+      
 
     },
 

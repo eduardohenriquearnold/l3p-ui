@@ -147,7 +147,7 @@ export default {
       console.log(this.type)
       console.log(this.scenarioType)
       */
-      measurementsService.getMeasurementsPipe({type:this.type, scenarioType:this.scenarioType, onProgress:this.onProgress})
+      measurementsService.getMeasurementsPipe({type:this.type, scenarioType:this.scenarioType})
       .then(resultsArray=>{
         if(resultsArray.length != 0)
         {
