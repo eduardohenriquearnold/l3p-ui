@@ -154,7 +154,7 @@ function getMeasurementsCSV({type='', condition='', roadType='', driverType='', 
   return results
 }
 
-function getMeasurementsPipe({type='', condition='', roadType='', driverType='', scenarioType='', onProgress})
+function getMeasurementsPipe({type='', condition='', roadType='', driverType='', scenarioType=''})
 {
   var feature = (type=='Datapoint') ? scenarioType : type
   var tags = [condition, roadType,driverType]
